@@ -1,7 +1,7 @@
 #include "Board.hpp"
 
 Board::Board() {
-    grid.resize(WIDTH, std::vector<int>(HEIGHT, 0));
+    grid.resize(WIDTH, std::vector<char>(HEIGHT, 0));
 }
 
 bool Board::isValidPosition(const Piece &piece, int posX, int posY) const {
@@ -13,7 +13,7 @@ bool Board::isValidPosition(const Piece &piece, int posX, int posY) const {
                 int boardY = posY + y;
                 if (boardX < 0 || boardX >= WIDTH || boardY < 0 || boardY >= HEIGHT)
                     return false;
-                if (grid[boardX][boardY])
+                if (grid[boardX][boardY] != 0)
                     return false;
             }
         }
@@ -32,6 +32,8 @@ int Board::findDropPosition(const Piece &piece, int posX, int posY) const {
 
 void Board::placePiece(const Piece &piece, int posX, int posY) {
     const auto &shape = piece.getShape();
+    char pieceType = piece.getType();
+    
     for (int x = 0; x < 5; ++x) {
         for (int y = 0; y < 5; ++y) {
             if (shape[x][y]) {
@@ -39,7 +41,7 @@ void Board::placePiece(const Piece &piece, int posX, int posY) {
                 int boardY = posY + y;
                 
                 if (boardX >= 0 && boardX < WIDTH && boardY >= 0 && boardY < HEIGHT) {
-                    grid[boardX][boardY] = 1;
+                    grid[boardX][boardY] = pieceType;
                 }
             }
         }
@@ -51,7 +53,7 @@ void Board::clearFullLines() {
     for (int y = 0; y < HEIGHT; ++y) {
         bool full = true;
         for (int x = 0; x < WIDTH; ++x) {
-            if (!grid[x][y]) {
+            if (grid[x][y] == 0) {
                 full = false;
                 break;
             }
@@ -69,6 +71,6 @@ void Board::clearFullLines() {
     }
 }
 
-const std::vector<std::vector<int>>& Board::getGrid() const {
+const std::vector<std::vector<char>>& Board::getGrid() const {
     return grid;
 }

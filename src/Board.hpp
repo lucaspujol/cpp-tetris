@@ -13,8 +13,8 @@ class Board {
         int findDropPosition(const Piece &piece, int x, int y) const;
         void placePiece(const Piece &piece, int x, int y);
         void clearFullLines();
-        const std::vector<std::vector<int>>& getGrid() const;
+        const std::vector<std::vector<char>>& getGrid() const;
     private:
-        std::vector<std::vector<int>> grid;
+        std::vector<std::vector<char>> grid;
 };
 #endif /* _BOARD_ */
