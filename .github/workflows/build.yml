@@ -32,4 +32,4 @@ jobs:
         curl -H "Content-Type: application/json" \
           -X POST \
           -d "{\"content\": \"✅ Tetris build: $status on branch ${{ github.ref_name }} by ${{ github.actor }}.\"}" \
-          https://discordapp.com/api/webhooks/1374732573888217170/FHXrqAp9wSizTTwgYklvIPTpDH7PUoLMFoBZECGUT1-y3s8Ah7O6eXyzScg_hocfkdhK
+          "${{ secrets.DISCORD_WEBHOOK }}"
