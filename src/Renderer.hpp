@@ -8,11 +8,12 @@
 class Renderer {
     public:
         Renderer(SDL_Renderer *r);
-        void draw(const Board &board, const Piece &piece, int x, int y);
+        void draw_board(const Board &board, const Piece &piece, int x, int y, const std::vector<Piece> &nextPieces);
 
     private:
         SDL_Renderer *renderer;
         const int blockSize = 45;
+        void draw_piece (const Piece &piece, int offsetX, int offsetY, int size, bool isGhost = false);
 };
 
 #endif /* _RENDERER_ */

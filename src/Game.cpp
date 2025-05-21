@@ -113,7 +113,7 @@ void Game::update() {
 }
 
 void Game::render() {
-    rendererWrapper->draw(board, currentPiece, pieceX, pieceY);
+    rendererWrapper->draw_board(board, currentPiece, pieceX, pieceY, nextPieces);
 }
 
 void Game::spawnNewPiece() {
