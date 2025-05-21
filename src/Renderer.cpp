@@ -1,6 +1,30 @@
 #include "Renderer.hpp"
 
-Renderer::Renderer(SDL_Renderer *r) : renderer(r) {}
+Renderer::Renderer(SDL_Renderer *r) : renderer(r) {
+    // Initialize SDL_ttf
+    if (TTF_Init() == -1) {
+        printf("SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError());
+        // In a real application, you might want to handle this error more gracefully
+    }
+    
+    // Load font
+    font = TTF_OpenFont(FONT_PATH, 16); // 16 is the font size
+    if (!font) {
+        printf("Failed to load font! SDL_ttf Error: %s\n", TTF_GetError());
+        // You could fall back to a default system font or handle this error differently
+    }
+}
+
+Renderer::~Renderer() {
+    // Free font resources
+    if (font) {
+        TTF_CloseFont(font);
+        font = NULL;
+    }
+    
+    // Quit SDL_ttf
+    TTF_Quit();
+}
 
 void Renderer::setPieceColor(char pieceType, bool isGhost) {
     if (isGhost) {
@@ -45,6 +69,32 @@ void Renderer::drawPiece(const Piece &piece, int offsetX, int offsetY, int size,
             }
         }
     }
+}
+
+void Renderer::renderText(const char* text, SDL_Rect destRect, SDL_Color color) {
+    if (!font)
+        return;
+    
+    SDL_Surface* textSurface = TTF_RenderText_Solid(font, text, color);
+    if (!textSurface) {
+        printf("Unable to render text surface! SDL_ttf Error: %s\n", TTF_GetError());
+        return;
+    }
+    
+    SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+    if (!textTexture) {
+        printf("Unable to create texture from rendered text! SDL Error: %s\n", SDL_GetError());
+        SDL_FreeSurface(textSurface);
+        return;
+    }
+    if (destRect.w == 0 || destRect.h == 0) {
+        destRect.w = textSurface->w;
+        destRect.h = textSurface->h;
+    }
+    SDL_RenderCopy(renderer, textTexture, NULL, &destRect);
+    
+    SDL_FreeSurface(textSurface);
+    SDL_DestroyTexture(textTexture);
 }
 
 void Renderer::draw_board(const Board &board, const Piece &piece, int posX, int posY, const std::vector<Piece> &nextPieces) {
@@ -111,10 +161,12 @@ void Renderer::draw_board(const Board &board, const Piece &piece, int posX, int 
     int nextPiecesPanelY = offsetY + 100;
     int nextPieceSize = blockSize - 10;
 
-    // "Pieces suivantes:" (pas encore de texte)
+    // "Pieces suivantes:"
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_Rect titlePanel = { nextPiecesPanelX, nextPiecesPanelY - 50, 150, 30 };
     SDL_RenderDrawRect(renderer, &titlePanel);
+    SDL_Rect textRect = { nextPiecesPanelX + 10, nextPiecesPanelY - 45, 0, 0 };
+    renderText("Pieces suivantes:", textRect);
 
     // draw les 4 next
     for (size_t i = 0; i < nextPieces.size() && i < 4; ++i) {
