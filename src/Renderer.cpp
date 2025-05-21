@@ -2,25 +2,28 @@
 
 Renderer::Renderer(SDL_Renderer *r) : renderer(r) {}
 
-void Renderer::draw_piece(const Piece &piece, int offsetX, int offsetY, int size, bool isGhost) {
-    const auto &shape = piece.getShape();
-    
-    // Set color based on piece type
-    if (!isGhost) {
-        switch (piece.getType()) {
-            case 'I': SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);   break;  // cyan
-            case 'O': SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);   break;  // jaune
-            case 'T': SDL_SetRenderDrawColor(renderer, 128, 0, 128, 255);   break;  // violet
-            case 'S': SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);     break;  // vert
-            case 'Z': SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);     break;  // rouge
-            case 'J': SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);     break;  // bleu
-            case 'L': SDL_SetRenderDrawColor(renderer, 255, 165, 0, 255);   break;  // orange
-            default:  SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);     break;  // rouge par défaut
-        }
-    } else {
+void Renderer::setPieceColor(char pieceType, bool isGhost) {
+    if (isGhost) {
         SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
+        return;
     }
     
+    switch (pieceType) {
+        case 'I': SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);   break;  // cyan
+        case 'O': SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);   break;  // jaune
+        case 'T': SDL_SetRenderDrawColor(renderer, 128, 0, 128, 255);   break;  // violet
+        case 'S': SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);     break;  // vert
+        case 'Z': SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);     break;  // rouge
+        case 'J': SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);     break;  // bleu
+        case 'L': SDL_SetRenderDrawColor(renderer, 255, 165, 0, 255);   break;  // orange
+        default:  SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);     break;  // rouge par défaut
+    }
+}
+
+void Renderer::drawPiece(const Piece &piece, int offsetX, int offsetY, int size, bool isGhost) {
+    const auto &shape = piece.getShape();
+    
+    setPieceColor(piece.getType(), isGhost);
     for (int x = 0; x < 5; ++x) {
         for (int y = 0; y < 5; ++y) {
             if (shape[x][y]) {
@@ -61,9 +64,10 @@ void Renderer::draw_board(const Board &board, const Piece &piece, int posX, int 
     const auto &grid = board.getGrid();
     for (int x = 0; x < Board::WIDTH; ++x) {
         for (int y = 0; y < Board::HEIGHT; ++y) {
-            if (grid[x][y]) {
+            if (grid[x][y] != 0) {
                 if (y >= 0 && y < Board::HEIGHT) {
-                    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+                    setPieceColor(grid[x][y]);
+                    
                     SDL_Rect rect = { offsetX + x * blockSize, offsetY + y * blockSize, blockSize, blockSize };
                     SDL_RenderFillRect(renderer, &rect);
                     
@@ -100,7 +104,7 @@ void Renderer::draw_board(const Board &board, const Piece &piece, int posX, int 
     }
 
     // dessiner la piece actuelle
-    draw_piece(piece, offsetX + posX * blockSize, offsetY + posY * blockSize, blockSize);
+    drawPiece(piece, offsetX + posX * blockSize, offsetY + posY * blockSize, blockSize);
 
     // dessiner les pieces qui sont queued
     int nextPiecesPanelX = offsetX + boardWidthPixels + 50;
@@ -121,7 +125,7 @@ void Renderer::draw_board(const Board &board, const Piece &piece, int posX, int 
         SDL_Rect piecePanel = { nextPiecesPanelX, pieceY, 5 * nextPieceSize, 5 * nextPieceSize };
         SDL_RenderDrawRect(renderer, &piecePanel);
 
-        draw_piece(nextPieces[i], nextPiecesPanelX, pieceY, nextPieceSize);
+        drawPiece(nextPieces[i], nextPiecesPanelX, pieceY, nextPieceSize);
     }
     SDL_RenderPresent(renderer);
 }

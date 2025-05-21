@@ -13,7 +13,8 @@ class Renderer {
     private:
         SDL_Renderer *renderer;
         const int blockSize = 45;
-        void draw_piece (const Piece &piece, int offsetX, int offsetY, int size, bool isGhost = false);
+        void drawPiece(const Piece &piece, int offsetX, int offsetY, int size, bool isGhost = false);
+        void setPieceColor(char pieceType, bool isGhost = false);
 };
 
 #endif /* _RENDERER_ */
