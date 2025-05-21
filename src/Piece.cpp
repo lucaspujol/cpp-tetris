@@ -1,6 +1,6 @@
 #include "Piece.hpp"
 
-Piece::Piece(Tetromino type) : currentRotation(0) {
+Piece::Piece(Tetromino type) : currentRotation(0), tetrominoType(type) {
     // definir tout les tetrominos
     switch (type) {
         case I:
@@ -175,4 +175,17 @@ void Piece::rotate() {
 
 const Piece::Shape &Piece::getShape() const {
     return rotations[currentRotation];
+}
+
+char Piece::getType() const {
+    switch (tetrominoType) {
+        case I: return 'I';
+        case O: return 'O';
+        case T: return 'T';
+        case S: return 'S';
+        case Z: return 'Z';
+        case J: return 'J';
+        case L: return 'L';
+    }
+    return ' ';
 }
