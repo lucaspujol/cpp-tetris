@@ -68,6 +68,9 @@ void Game::handleInput() {
                         
                     }
                     break;
+                case SDLK_ESCAPE:
+                    quit = true;
+                    break;
                 default:
                     break;
             }

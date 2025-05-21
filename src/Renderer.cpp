@@ -3,8 +3,17 @@
 Renderer::Renderer(SDL_Renderer *r) : renderer(r) {}
 
 void Renderer::draw(const Board &board, const Piece &piece, int posX, int posY) {
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_SetRenderDrawColor(renderer, 75, 75, 75, 255);
     SDL_RenderClear(renderer);
+
+    int boardWidthPixels = Board::WIDTH * blockSize;
+    int boardHeightPixels = Board::HEIGHT * blockSize;
+
+    int windowWidth, windowHeight;
+    SDL_GetRendererOutputSize(renderer, &windowWidth, &windowHeight);
+
+    int offsetX = (windowWidth - boardWidthPixels) / 2;
+    int offsetY = (windowHeight - boardHeightPixels) / 2 - blockSize;
 
     // dessiner la board
     const auto &grid = board.getGrid();
@@ -13,12 +22,16 @@ void Renderer::draw(const Board &board, const Piece &piece, int posX, int posY) 
             if (grid[x][y]) {
                 if (y >= 0 && y < Board::HEIGHT) {
                     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-                    SDL_Rect rect = { x * blockSize, y * blockSize, blockSize, blockSize };
+                    SDL_Rect rect = { offsetX + x * blockSize, offsetY + y * blockSize, blockSize, blockSize };
                     SDL_RenderFillRect(renderer, &rect);
                     
                     SDL_SetRenderDrawColor(renderer, 50, 50, 50, 255);
                     SDL_RenderDrawRect(renderer, &rect);
                 }
+            } else {
+                SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+                SDL_Rect rect = { offsetX + x * blockSize, offsetY + y * blockSize, blockSize, blockSize };
+                SDL_RenderFillRect(renderer, &rect);
             }
         }
     }
@@ -36,7 +49,7 @@ void Renderer::draw(const Board &board, const Piece &piece, int posX, int posY) 
 
                     if (boardX >= 0 && boardX < Board::WIDTH && boardY >= 0 && boardY < Board::HEIGHT) {
                         SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
-                        SDL_Rect rect = { boardX * blockSize, boardY * blockSize, blockSize, blockSize };
+                        SDL_Rect rect = { offsetX + boardX * blockSize, offsetY + boardY * blockSize, blockSize, blockSize };
                         SDL_RenderDrawRect(renderer, &rect);
                     }
                 }
@@ -54,7 +67,7 @@ void Renderer::draw(const Board &board, const Piece &piece, int posX, int posY) 
                 
                 if (boardX >= 0 && boardX < Board::WIDTH && boardY >= 0 && boardY < Board::HEIGHT) {
                     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-                    SDL_Rect rect = { boardX * blockSize, boardY * blockSize, blockSize, blockSize };
+                    SDL_Rect rect = { offsetX + boardX * blockSize, offsetY + boardY * blockSize, blockSize, blockSize };
                     SDL_RenderFillRect(renderer, &rect);
                     
                     SDL_SetRenderDrawColor(renderer, 50, 50, 50, 255);

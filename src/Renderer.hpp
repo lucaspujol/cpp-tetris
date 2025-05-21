@@ -12,7 +12,7 @@ class Renderer {
 
     private:
         SDL_Renderer *renderer;
-        const int blockSize = 32;
+        const int blockSize = 45;
 };
 
 #endif /* _RENDERER_ */
