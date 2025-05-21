@@ -25,3 +25,11 @@ jobs:
     - name: Run binary (headless test)
       run: |
         echo "Skipping actual execution since SDL2 requires display"
+    - name: Notify Discord after a run
+      if: always()
+      run: |
+        status="${{ job.status }}"
+        curl -H "Content-Type: application/json" \
+          -X POST \
+          -d "{\"content\": \"✅ Tetris build: $status on branch ${{ github.ref_name }} by ${{ github.actor }}.\"}" \
+          https://discordapp.com/api/webhooks/1374732573888217170/FHXrqAp9wSizTTwgYklvIPTpDH7PUoLMFoBZECGUT1-y3s8Ah7O6eXyzScg_hocfkdhK
