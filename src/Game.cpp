@@ -9,13 +9,33 @@
 
 Renderer *rendererWrapper = nullptr;
 
-Game::Game() : currentPiece(Piece::I) {
+Piece::Tetromino Game::getRandomTetromino() {
+    return static_cast<Piece::Tetromino>(rand() % TETROMINO_COUNT);
+}
+
+void Game::initNextPieces() {
+    nextPieces.clear();
+    for (int i = 0; i < NEXT_PIECE_COUNT; i++) {
+        nextPieces.push_back(Piece(getRandomTetromino()));
+    }
+}
+
+void Game::printNextPiece() {
+    std::cout << "Next pieces: ";
+    for (const auto &piece : nextPieces) {
+        std::cout << piece.getType() << " ";
+    }
+    std::cout << std::endl;
+}
+
+Game::Game() : currentPiece(Piece::I), nextPieces() {
     SDL_Init(SDL_INIT_VIDEO);
     window = SDL_CreateWindow("Tetris", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIN_WIDTH, WIN_HEIGHT, 0);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     rendererWrapper = new Renderer(renderer);
     std::srand(std::time(nullptr));
     quit = false;
+    initNextPieces();
     spawnNewPiece();
 }
 
@@ -99,7 +119,16 @@ void Game::render() {
 void Game::spawnNewPiece() {
     pieceX = (Board::WIDTH / 2) - 2;
     pieceY = 0;
-    currentPiece = Piece(static_cast<Piece::Tetromino>(rand() % TETROMINO_COUNT));
+    
+    currentPiece = nextPieces[0];
+    
+    for (int i = 0; i < NEXT_PIECE_COUNT - 1; i++) {
+        nextPieces[i] = nextPieces[i + 1];
+    }
+    
+    nextPieces[NEXT_PIECE_COUNT - 1] = Piece(getRandomTetromino());
+    
+    // printNextPiece();
     if (!board.isValidPosition(currentPiece, pieceX, pieceY))
         quit = true;
 }
