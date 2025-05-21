@@ -28,10 +28,16 @@ void Renderer::draw_piece(const Piece &piece, int offsetX, int offsetY, int size
                 if (isGhost) {
                     SDL_RenderDrawRect(renderer, &rect);
                 } else {
+                    // save la couleur de base
+                    Uint8 r, g, b, a;
+                    SDL_GetRenderDrawColor(renderer, &r, &g, &b, &a);
                     SDL_RenderFillRect(renderer, &rect);
-                    
+
                     SDL_SetRenderDrawColor(renderer, 50, 50, 50, 255);
                     SDL_RenderDrawRect(renderer, &rect);
+                    
+                    // restore la couleur pour le next block
+                    SDL_SetRenderDrawColor(renderer, r, g, b, a);
                 }
             }
         }
