@@ -15,7 +15,7 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Install dependencies
-      run: sudo apt-get update && sudo apt-get install -y libsdl2-dev g++
+      run: sudo apt-get update && sudo apt-get install -y libsdl2-dev g++ libsdl2-ttf-dev
 
     - name: Build the project
       run: |
@@ -29,7 +29,14 @@ jobs:
       if: always()
       run: |
         status="${{ job.status }}"
+        if [ "$status" = "success" ]; then
+          emoji="✅"
+          msg="Tetris build succeeded"
+        else
+          emoji="❌"
+          msg="Tetris build failed"
+        fi
         curl -H "Content-Type: application/json" \
           -X POST \
-          -d "{\"content\": \"✅ Tetris build: $status on branch ${{ github.ref_name }} by ${{ github.actor }}.\"}" \
+          -d "{\"content\": \"$emoji $msg: $status on branch ${{ github.ref_name }} by ${{ github.actor }}.\"}" \
           "${{ secrets.DISCORD_WEBHOOK }}"
