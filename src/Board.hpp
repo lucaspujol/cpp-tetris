@@ -15,6 +15,7 @@ class Board {
         int clearFullLines();
         const std::vector<std::vector<char>>& getGrid() const;
         int getScore() const;
+        void setScore(int score);
         int getLevel() const;
         void updateScore(int lines);
         void setLevel(int level);
