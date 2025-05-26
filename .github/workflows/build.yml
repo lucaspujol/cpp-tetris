@@ -40,3 +40,50 @@ jobs:
           -X POST \
           -d "{\"content\": \"$emoji $msg: $status on branch ${{ github.ref_name }} by ${{ github.actor }}.\"}" \
           "${{ secrets.DISCORD_WEBHOOK }}"
+
+  create-release:
+    needs: build-linux
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Get version
+        id: get_version
+        run: |
+          echo "date=$(date +'%Y.%m.%d')" >> $GITHUB_OUTPUT
+          echo "short_sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.get_version.outputs.date }}-${{ steps.get_version.outputs.short_sha }}
+          release_name: Release ${{ steps.get_version.outputs.date }}
+          body: |
+            Automated release for commit ${{ github.sha }}
+            
+            Changes in this release:
+            ${{ github.event.head_commit.message }}
+          draft: false
+          prerelease: false
+
+      - name: Build the project for release
+        run: |
+          make clean
+          make
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./tetris
+          asset_name: tetris
+          asset_content_type: application/octet-stream
