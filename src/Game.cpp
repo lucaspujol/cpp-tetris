@@ -122,7 +122,7 @@ void Game::update() {
     static Uint32 lastTick = SDL_GetTicks();
     int dropDelay = getDropDelay();
     
-    if (SDL_GetTicks() - lastTick > dropDelay) {
+    if (SDL_GetTicks() - lastTick > static_cast<Uint32>(dropDelay)) {
         if (board.isValidPosition(currentPiece, pieceX, pieceY + 1)) {
             pieceY++;
         } else {
