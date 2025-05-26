@@ -329,7 +329,7 @@ void Renderer::drawLevelIndicatorDots(const SDL_Rect& scorePanel, int level) {
     for (int i = 0; i < 10; i++) {
         SDL_Rect dot = { 
             scorePanel.x + 20 + (i * 15), 
-            scorePanel.y + 185, 
+            scorePanel.y + 175, 
             10, 
             10 
         };
