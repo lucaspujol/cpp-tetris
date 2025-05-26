@@ -38,15 +38,13 @@ A modern implementation of the classic Tetris game built in C++ using SDL2 for r
 ```bash
 # Install the required dependencies
 sudo apt-get update
-sudo apt-get install -y build-essential cmake libsdl2-dev
+sudo apt-get install -y libsdl2-dev
 
 # Clone the repository
 git clone https://github.com/lucaspujol/cpp-tetris.git
 cd cpp-tetris
 
 # Build the project
-mkdir build && cd build
-cmake ..
 make
 
 # Run the game
