@@ -2,28 +2,22 @@
 #include <string>
 
 Renderer::Renderer(SDL_Renderer *r) : renderer(r) {
-    // Initialize SDL_ttf
     if (TTF_Init() == -1) {
         printf("SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError());
-        // In a real application, you might want to handle this error more gracefully
     }
     
-    // Load font
-    font = TTF_OpenFont(FONT_PATH, 20); // Increase default font size from 16 to 20
+    font = TTF_OpenFont(FONT_PATH, 20);
     if (!font) {
         printf("Failed to load font! SDL_ttf Error: %s\n", TTF_GetError());
-        // You could fall back to a default system font or handle this error differently
+        printf("Tried multiple font paths but all failed.\n");
     }
 }
 
 Renderer::~Renderer() {
-    // Free font resources
     if (font) {
         TTF_CloseFont(font);
         font = NULL;
     }
-    
-    // Quit SDL_ttf
     TTF_Quit();
 }
 
@@ -177,7 +171,6 @@ void Renderer::drawNextPiecesPanel(const std::vector<Piece> &nextPieces, int pan
     for (size_t i = 0; i < nextPieces.size() && i < 4; ++i) {
         int pieceY = nextPanel.y + 50 + i * (5 * nextPieceSize + 10);
         
-        // Draw piece backgrounds with slightly darker panel
         SDL_Rect pieceBackground = { 
             nextPanel.x + 10, 
             pieceY, 

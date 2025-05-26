@@ -9,7 +9,7 @@
 #include "Board.hpp"
 #include "Piece.hpp"
 
-#define FONT_PATH "/home/lucas/perso/cpp-tetris/assets/fonts/OpenSans-Bold.ttf"
+#define FONT_PATH "./assets/fonts/OpenSans-Bold.ttf"
 
 class Renderer {
     public:
