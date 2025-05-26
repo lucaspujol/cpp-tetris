@@ -23,7 +23,8 @@ $(OBJ_DIR):
 	mkdir -p $@
 
 clean:
-	rm -rf $(OBJ_DIR) $(TARGET)
+	rm -rf $(OBJ_DIR)
+	mkdir -p $(OBJ_DIR)
 
 fclean:
 	rm -rf $(OBJ_DIR) $(TARGET)
