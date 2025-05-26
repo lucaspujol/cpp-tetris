@@ -140,16 +140,14 @@ void Renderer::drawGhostPiece(const Board &board, const Piece &piece, int posX, 
 }
 
 void Renderer::drawNextPiecesPanel(const std::vector<Piece> &nextPieces, int panelX, int panelY, int nextPieceSize) {
-    // Create panel dimensions similar to score panel
     SDL_Rect nextPanel;
     nextPanel.x = panelX;
-    nextPanel.y = panelY - 50; // Move up to include title
-    nextPanel.w = 5 * nextPieceSize + 20; // Width to fit pieces plus padding
-    nextPanel.h = 4 * (5 * nextPieceSize + 20) + 30; // Height to fit all pieces
+    nextPanel.y = panelY - 50;
+    nextPanel.w = 5 * nextPieceSize + 20;
+    nextPanel.h = 4 * (5 * nextPieceSize + 20) + 30;
     
-    // Draw panel background with gradient (same as score panel)
+    // le meme gradient que le score panel
     for (int y = 0; y < nextPanel.h; y++) {
-        // Create gradient effect from dark purple to lighter purple
         int r = 40 + (y * 20 / nextPanel.h);
         int g = 0;
         int b = 80 + (y * 40 / nextPanel.h);
@@ -160,27 +158,22 @@ void Renderer::drawNextPiecesPanel(const std::vector<Piece> &nextPieces, int pan
                           nextPanel.x + nextPanel.w, nextPanel.y + y);
     }
     
-    // Draw metallic borders (same as score panel)
     SDL_SetRenderDrawColor(renderer, 180, 180, 200, 255);
     SDL_RenderDrawRect(renderer, &nextPanel);
     
-    // Inner border (double border effect)
     SDL_Rect innerBorder = {nextPanel.x + 3, nextPanel.y + 3, nextPanel.w - 6, nextPanel.h - 6};
     SDL_SetRenderDrawColor(renderer, 100, 100, 140, 255);
     SDL_RenderDrawRect(renderer, &innerBorder);
     
-    // "Pieces suivantes:" title in gold color
     SDL_Rect textRect = { nextPanel.x + 10, nextPanel.y + 10, 0, 0 };
-    SDL_Color goldColor = { 255, 255, 0, 255 }; // Same gold color as score panel
+    SDL_Color goldColor = { 255, 255, 0, 255 };
     renderText("NEXT PIECES", textRect, goldColor);
     
-    // Draw a divider line
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 100);
     SDL_RenderDrawLine(renderer, 
                       nextPanel.x + 10, nextPanel.y + 40, 
                       nextPanel.x + nextPanel.w - 10, nextPanel.y + 40);
     
-    // Draw the pieces
     for (size_t i = 0; i < nextPieces.size() && i < 4; ++i) {
         int pieceY = nextPanel.y + 50 + i * (5 * nextPieceSize + 10);
         
@@ -192,15 +185,12 @@ void Renderer::drawNextPiecesPanel(const std::vector<Piece> &nextPieces, int pan
             5 * nextPieceSize 
         };
         
-        // Fill piece background
         SDL_SetRenderDrawColor(renderer, 30, 30, 50, 255);
         SDL_RenderFillRect(renderer, &pieceBackground);
         
-        // Draw piece border
         SDL_SetRenderDrawColor(renderer, 100, 100, 140, 255);
         SDL_RenderDrawRect(renderer, &pieceBackground);
         
-        // Draw the actual piece
         drawPiece(nextPieces[i], nextPanel.x + 10, pieceY, nextPieceSize);
     }
 }
