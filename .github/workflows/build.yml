@@ -59,19 +59,28 @@ jobs:
 
       - name: Create Release
         id: create_release
-        uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: v${{ steps.get_version.outputs.date }}-${{ steps.get_version.outputs.short_sha }}
-          release_name: Release ${{ steps.get_version.outputs.date }}
-          body: |
-            Automated release for commit ${{ github.sha }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Create a release note file
+          echo "Automated release for commit ${{ github.sha }}" > release_notes.txt
+          echo "" >> release_notes.txt
+          echo "Changes in this release:" >> release_notes.txt
+          echo "${{ github.event.head_commit.message }}" >> release_notes.txt
+          
+          # Create tag
+          git tag v${{ steps.get_version.outputs.date }}-${{ steps.get_version.outputs.short_sha }}
+          git push origin v${{ steps.get_version.outputs.date }}-${{ steps.get_version.outputs.short_sha }}
+          
+          # Create the GitHub release using gh CLI
+          release_url=$(gh release create v${{ steps.get_version.outputs.date }}-${{ steps.get_version.outputs.short_sha }} \
+            --title "Release ${{ steps.get_version.outputs.date }}" \
+            --notes-file release_notes.txt \
+            --repo ${{ github.repository }} \
+            --target ${{ github.ref_name }})
             
-            Changes in this release:
-            ${{ github.event.head_commit.message }}
-          draft: false
-          prerelease: false
+          # Save the release URL for later steps
+          echo "RELEASE_URL=${release_url}" >> $GITHUB_ENV
 
       - name: Build the project for release
         run: |
@@ -79,23 +88,19 @@ jobs:
           make
 
       - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./tetris
-          asset_name: tetris
-          asset_content_type: application/octet-stream
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload v${{ steps.get_version.outputs.date }}-${{ steps.get_version.outputs.short_sha }} ./tetris \
+            --repo ${{ github.repository }}
           
       - name: Notify Discord about successful release
         if: success()
         run: |
           version="v${{ steps.get_version.outputs.date }}-${{ steps.get_version.outputs.short_sha }}"
-          release_url="https://github.com/${{ github.repository }}/releases/tag/${version}"
           curl -H "Content-Type: application/json" \
             -X POST \
-            -d "{\"content\": \"🚀 **New Tetris Release**: ${version} is now available! [Download here](${release_url})\n\nChanges in this release:\n${{ github.event.head_commit.message }}\"}" \
+            -d "{\"content\": \"🚀 **New Tetris Release**: ${version} is now available! [Download here](${RELEASE_URL})\n\nChanges in this release:\n${{ github.event.head_commit.message }}\"}" \
             "${{ secrets.DISCORD_WEBHOOK }}"
             
       - name: Notify Discord about release failure
