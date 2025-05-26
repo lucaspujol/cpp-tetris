@@ -15,7 +15,7 @@ class Renderer {
     public:
         Renderer(SDL_Renderer *r);
         ~Renderer();
-        void drawBoard(const Board &board, const Piece &piece, int x, int y, const std::vector<Piece> &nextPieces);
+        void drawBoard(const Board &board, const Piece &piece, int x, int y, const std::vector<Piece> &nextPieces, const Piece* heldPiece = nullptr);
 
     private:
         SDL_Renderer *renderer;
@@ -29,6 +29,7 @@ class Renderer {
         void drawBoardGrid(const Board &board, int offsetX, int offsetY);
         void drawGhostPiece(const Board &board, const Piece &piece, int posX, int posY, int offsetX = 0, int offsetY = 0);
         void drawNextPiecesPanel(const std::vector<Piece> &nextPieces, int panelX, int panelY, int nextPieceSize);
+        void drawHeldPiecePanel(const Piece* heldPiece, int panelX, int panelY, int heldPieceSize);
         void drawScorePanel(int score, int level);
 
         // Score panel helper methods

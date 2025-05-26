@@ -188,6 +188,64 @@ void Renderer::drawNextPiecesPanel(const std::vector<Piece> &nextPieces, int pan
     }
 }
 
+void Renderer::drawHeldPiecePanel(const Piece* heldPiece, int panelX, int panelY, int heldPieceSize) {
+    SDL_Rect holdPanel;
+    holdPanel.x = panelX - 15;
+    holdPanel.y = panelY + 200;
+    holdPanel.w = 5 * heldPieceSize + 20;
+    holdPanel.h = 5 * heldPieceSize + 80;
+    
+    for (int y = 0; y < holdPanel.h; y++) {
+        int r = 40 + (y * 20 / holdPanel.h);
+        int g = 0;
+        int b = 80 + (y * 40 / holdPanel.h);
+        
+        SDL_SetRenderDrawColor(renderer, r, g, b, 255);
+        SDL_RenderDrawLine(renderer, 
+                          holdPanel.x, holdPanel.y + y, 
+                          holdPanel.x + holdPanel.w, holdPanel.y + y);
+    }
+    
+    SDL_SetRenderDrawColor(renderer, 180, 180, 200, 255);
+    SDL_RenderDrawRect(renderer, &holdPanel);
+    
+    SDL_Rect innerBorder = {holdPanel.x + 3, holdPanel.y + 3, holdPanel.w - 6, holdPanel.h - 6};
+    SDL_SetRenderDrawColor(renderer, 100, 100, 140, 255);
+    SDL_RenderDrawRect(renderer, &innerBorder);
+    
+    SDL_Rect textRect = { holdPanel.x + 10, holdPanel.y + 10, 0, 0 };
+    SDL_Color goldColor = { 255, 255, 0, 255 };
+    renderText("HOLD", textRect, goldColor);
+    
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 100);
+    SDL_RenderDrawLine(renderer, 
+                      holdPanel.x + 10, holdPanel.y + 40, 
+                      holdPanel.x + holdPanel.w - 10, holdPanel.y + 40);
+    
+    if (heldPiece != nullptr) {
+        int pieceY = holdPanel.y + 50;
+        
+        SDL_Rect pieceBackground = { 
+            holdPanel.x + 10, 
+            pieceY, 
+            5 * heldPieceSize, 
+            5 * heldPieceSize 
+        };
+        
+        SDL_SetRenderDrawColor(renderer, 30, 30, 50, 255);
+        SDL_RenderFillRect(renderer, &pieceBackground);
+        
+        SDL_SetRenderDrawColor(renderer, 100, 100, 140, 255);
+        SDL_RenderDrawRect(renderer, &pieceBackground);
+        
+        drawPiece(*heldPiece, holdPanel.x + 10, pieceY, heldPieceSize);
+    } else {
+        SDL_Rect emptyTextRect = { holdPanel.x + 15, holdPanel.y + 65, 0, 0 };
+        SDL_Color grayColor = { 150, 150, 150, 255 };
+        renderText("EMPTY", emptyTextRect, grayColor);
+    }
+}
+
 void Renderer::drawScorePanel(int score, int level) {
     float pulseIntensity = calculateScorePulseIntensity(score);
     
@@ -346,7 +404,7 @@ void Renderer::drawLevelIndicatorDots(const SDL_Rect& scorePanel, int level) {
     }
 }
 
-void Renderer::drawBoard(const Board &board, const Piece &piece, int posX, int posY, const std::vector<Piece> &nextPieces) {
+void Renderer::drawBoard(const Board &board, const Piece &piece, int posX, int posY, const std::vector<Piece> &nextPieces, const Piece* heldPiece) {
     SDL_SetRenderDrawColor(renderer, 75, 75, 75, 255);
     SDL_RenderClear(renderer);
 
@@ -367,6 +425,11 @@ void Renderer::drawBoard(const Board &board, const Piece &piece, int posX, int p
     int nextPiecesPanelY = offsetY + 100;
     int nextPieceSize = blockSize - 10;
     drawNextPiecesPanel(nextPieces, nextPiecesPanelX, nextPiecesPanelY, nextPieceSize);
+
+    int heldPiecePanelX = offsetX - 200;
+    int heldPiecePanelY = offsetY + 100;
+    int heldPieceSize = blockSize - 10;
+    drawHeldPiecePanel(heldPiece, heldPiecePanelX, heldPiecePanelY, heldPieceSize);
 
     // draw a score panel
     drawScorePanel(board.getScore(), board.getLevel());
