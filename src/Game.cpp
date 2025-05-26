@@ -35,6 +35,9 @@ Game::Game() : currentPiece(Piece::I), nextPieces() {
     rendererWrapper = new Renderer(renderer);
     std::srand(std::time(nullptr));
     quit = false;
+    heldPiece = nullptr;
+    hasHeldPiece = false;
+    canHold = true;
     initNextPieces();
     spawnNewPiece();
 }
@@ -44,6 +47,9 @@ Game::~Game() {
     SDL_DestroyWindow(window);
     SDL_Quit();
     delete rendererWrapper;
+    if (heldPiece != nullptr) {
+        delete heldPiece;  // Clean up held piece memory
+    }
 }
 
 int Game::getDropDelay() const {
@@ -109,6 +115,11 @@ void Game::handleInput() {
                         
                     }
                     break;
+                case SDLK_RSHIFT:
+                    if (canHold) {
+                        holdPiece();
+                    }
+                    break;
                 case SDLK_ESCAPE:
                     quit = true;
                     break;
@@ -135,7 +146,7 @@ void Game::update() {
 }
 
 void Game::render() {
-    rendererWrapper->drawBoard(board, currentPiece, pieceX, pieceY, nextPieces);
+    rendererWrapper->drawBoard(board, currentPiece, pieceX, pieceY, nextPieces, heldPiece);
 }
 
 void Game::spawnNewPiece() {
@@ -151,9 +162,41 @@ void Game::spawnNewPiece() {
     // nextPieces[NEXT_PIECE_COUNT - 1] = Piece::I;
     nextPieces[NEXT_PIECE_COUNT - 1] = Piece(getRandomTetromino());
     
+    canHold = true;  // Reset hold availability for new piece
+    
     // printNextPiece();
     if (!board.isValidPosition(currentPiece, pieceX, pieceY))
         quit = true;
+}
+
+void Game::holdPiece() {
+    if (!canHold) {
+        return;  // Can't hold twice in one drop
+    }
+    
+    if (heldPiece == nullptr) {
+        // First time holding - store current piece and spawn next
+        heldPiece = new Piece(currentPiece);
+        hasHeldPiece = true;
+        spawnNewPiece();
+    } else {
+        // Swap current piece with held piece
+        Piece tempPiece = currentPiece;
+        currentPiece = *heldPiece;
+        delete heldPiece;  // Clean up old held piece
+        heldPiece = new Piece(tempPiece);
+        
+        // Reset piece position for swapped piece
+        pieceX = (Board::WIDTH / 2) - 2;
+        pieceY = 0;
+        
+        // Check if swapped piece fits at spawn position
+        if (!board.isValidPosition(currentPiece, pieceX, pieceY)) {
+            quit = true;  // Game over if held piece doesn't fit
+        }
+    }
+    
+    canHold = false;  // Prevent holding again until next piece
 }
 
 bool Game::tryWallKicks() {

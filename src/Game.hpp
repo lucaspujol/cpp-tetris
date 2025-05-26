@@ -22,6 +22,9 @@ class Game {
         Board board;
         Piece currentPiece;
         std::vector<Piece> nextPieces;
+        Piece* heldPiece;
+        bool hasHeldPiece;
+        bool canHold;
         int pieceX, pieceY;
 
         bool quit;
@@ -32,6 +35,7 @@ class Game {
         void update();
         void render();
         void spawnNewPiece();
+        void holdPiece();
         bool tryWallKicks();
         Piece::Tetromino getRandomTetromino();
         void initNextPieces();
