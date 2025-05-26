@@ -2,6 +2,9 @@
 
 Board::Board() {
     grid.resize(WIDTH, std::vector<char>(HEIGHT, 0));
+    score = 0;
+    currentLevel = 1;
+    linesCleared = 0;
 }
 
 bool Board::isValidPosition(const Piece &piece, int posX, int posY) const {
@@ -30,6 +33,34 @@ int Board::findDropPosition(const Piece &piece, int posX, int posY) const {
     return dropY;    
 }
 
+void Board::updateScore(int lines) {
+    int linePoints = 0;
+
+    switch (lines) {
+        case 0:
+            linePoints = 0;
+            break;
+        case 1:
+            linePoints = 40 * (currentLevel + 1);
+            break;
+        case 2:
+            linePoints = 100 * (currentLevel + 1);
+            break;
+        case 3:
+            linePoints = 300 * (currentLevel + 1);
+            break;
+        default:
+            linePoints = 1200 * (currentLevel + 1);
+            break;
+    }
+    score += linePoints;
+    linesCleared += lines;
+    if (linesCleared >= 10) {
+        currentLevel++;
+        linesCleared = 0;
+    }
+}
+
 void Board::placePiece(const Piece &piece, int posX, int posY) {
     const auto &shape = piece.getShape();
     char pieceType = piece.getType();
@@ -46,10 +77,15 @@ void Board::placePiece(const Piece &piece, int posX, int posY) {
             }
         }
     }
-    clearFullLines();
+    int lines = clearFullLines();
+    if (lines > 0) {
+        updateScore(lines);
+    }
 }
 
-void Board::clearFullLines() {
+int Board::clearFullLines() {
+    int linesCleared = 0;
+    std::vector<int> fullLines;
     for (int y = 0; y < HEIGHT; ++y) {
         bool full = true;
         for (int x = 0; x < WIDTH; ++x) {
@@ -59,18 +95,36 @@ void Board::clearFullLines() {
             }
         }
         if (full) {
-            for (int yy = y; yy > 0; --yy) {
-                for (int x = 0; x < WIDTH; ++x) {
-                    grid[x][yy] = grid[x][yy - 1];
-                }
-            }
-            for (int x = 0; x < WIDTH; ++x) {
-                grid[x][0] = 0;
-            }
+            fullLines.push_back(y);
         }
     }
+    linesCleared = fullLines.size();
+    for (int fullY : fullLines) {
+        for (int y = fullY; y > 0; --y) {
+            for (int x = 0; x < WIDTH; ++x) {
+                grid[x][y] = grid[x][y - 1];
+            }
+        }
+        for (int x = 0; x < WIDTH; ++x) {
+            grid[x][0] = 0;
+        }
+    }
+    return linesCleared;
 }
 
 const std::vector<std::vector<char>>& Board::getGrid() const {
     return grid;
+}
+
+void Board::setLevel(int level) {
+    if (level > 0) 
+        currentLevel = level;
+}
+
+int Board::getScore() const {
+    return score;
+}
+
+int Board::getLevel() const {
+    return currentLevel;
 }
