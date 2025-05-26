@@ -84,6 +84,7 @@ void Game::handleInput() {
                 case SDLK_DOWN:
                     if (board.isValidPosition(currentPiece, pieceX, pieceY + 1))
                         pieceY++;
+                    board.setScore(board.getScore() + 1);
                     break;
                 case SDLK_UP:
                     {
@@ -134,7 +135,7 @@ void Game::update() {
 }
 
 void Game::render() {
-    rendererWrapper->draw_board(board, currentPiece, pieceX, pieceY, nextPieces);
+    rendererWrapper->drawBoard(board, currentPiece, pieceX, pieceY, nextPieces);
 }
 
 void Game::spawnNewPiece() {
