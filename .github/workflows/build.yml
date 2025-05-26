@@ -87,3 +87,21 @@ jobs:
           asset_path: ./tetris
           asset_name: tetris
           asset_content_type: application/octet-stream
+          
+      - name: Notify Discord about successful release
+        if: success()
+        run: |
+          version="v${{ steps.get_version.outputs.date }}-${{ steps.get_version.outputs.short_sha }}"
+          release_url="https://github.com/${{ github.repository }}/releases/tag/${version}"
+          curl -H "Content-Type: application/json" \
+            -X POST \
+            -d "{\"content\": \"🚀 **New Tetris Release**: ${version} is now available! [Download here](${release_url})\n\nChanges in this release:\n${{ github.event.head_commit.message }}\"}" \
+            "${{ secrets.DISCORD_WEBHOOK }}"
+            
+      - name: Notify Discord about release failure
+        if: failure()
+        run: |
+          curl -H "Content-Type: application/json" \
+            -X POST \
+            -d "{\"content\": \"❌ **Release Creation Failed**: The attempt to create a new release for commit ${{ github.sha }} on branch ${{ github.ref_name }} by ${{ github.actor }} has failed. Please check the [GitHub Actions logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.\"}" \
+            "${{ secrets.DISCORD_WEBHOOK }}"
