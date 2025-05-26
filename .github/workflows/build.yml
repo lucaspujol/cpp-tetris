@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [ main ]
 
+# Add explicit permissions needed for release creation
+permissions:
+  contents: write
+  packages: write
+
 jobs:
   build-linux:
     runs-on: ubuntu-latest
