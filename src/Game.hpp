@@ -25,6 +25,8 @@ class Game {
         int pieceX, pieceY;
 
         bool quit;
+        int score = 0;
+        int level = 1;
 
         void handleInput();
         void update();
@@ -34,5 +36,7 @@ class Game {
         Piece::Tetromino getRandomTetromino();
         void initNextPieces();
         void printNextPiece();
+        int getDropDelay() const;
 };
+
 #endif /* _GAME_ */

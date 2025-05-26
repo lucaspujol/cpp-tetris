@@ -46,6 +46,26 @@ Game::~Game() {
     delete rendererWrapper;
 }
 
+int Game::getDropDelay() const {
+    int level = board.getLevel();
+
+    if (level == 0) return 48 * 16; // 48 frames
+    else if (level == 1) return 43 * 16;
+    else if (level == 2) return 38 * 16;
+    else if (level == 3) return 33 * 16;
+    else if (level == 4) return 28 * 16;
+    else if (level == 5) return 23 * 16;
+    else if (level == 6) return 18 * 16;
+    else if (level == 7) return 13 * 16;
+    else if (level == 8) return 8 * 16;
+    else if (level == 9) return 6 * 16;
+    else if (level >= 10 && level <= 12) return 5 * 16;
+    else if (level >= 13 && level <= 15) return 4 * 16;
+    else if (level >= 16 && level <= 18) return 3 * 16;
+    else if (level >= 19 && level <= 28) return 2 * 16;
+    else return 16; // 1 frame (level 29+)
+}
+
 void Game::handleInput() {
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
@@ -100,8 +120,9 @@ void Game::handleInput() {
 
 void Game::update() {
     static Uint32 lastTick = SDL_GetTicks();
+    int dropDelay = getDropDelay();
     
-    if (SDL_GetTicks() - lastTick > WAIT_TIME) {
+    if (SDL_GetTicks() - lastTick > dropDelay) {
         if (board.isValidPosition(currentPiece, pieceX, pieceY + 1)) {
             pieceY++;
         } else {
@@ -126,7 +147,8 @@ void Game::spawnNewPiece() {
         nextPieces[i] = nextPieces[i + 1];
     }
     
-    nextPieces[NEXT_PIECE_COUNT - 1] = Piece(getRandomTetromino());
+    nextPieces[NEXT_PIECE_COUNT - 1] = Piece::I;
+    // nextPieces[NEXT_PIECE_COUNT - 1] = Piece(getRandomTetromino());
     
     // printNextPiece();
     if (!board.isValidPosition(currentPiece, pieceX, pieceY))
@@ -164,6 +186,6 @@ void Game::run() {
         handleInput();
         update();
         render();
-        SDL_Delay(100);
+        SDL_Delay(16);
     }
 }
