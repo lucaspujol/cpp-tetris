@@ -235,7 +235,7 @@ SDL_Rect Renderer::calculateScorePanelPosition() {
 
     SDL_Rect scorePanel;
     scorePanel.x = offsetX - 200;
-    scorePanel.y = 40;
+    scorePanel.y = 100;
     scorePanel.w = 180;
     scorePanel.h = 200;
     
@@ -283,13 +283,13 @@ void Renderer::drawScorePanelBorders(const SDL_Rect& scorePanel) {
 
 void Renderer::drawScoreSection(const SDL_Rect& scorePanel, int score, float pulseIntensity) {
     // Draw "SCORE" heading
-    SDL_Rect textRect = { scorePanel.x + 20, scorePanel.y + 20, 0, 0 };
+    SDL_Rect textRect = { scorePanel.x + 20, scorePanel.y + 15, 0, 0 };
     SDL_Color goldColor = { 255, 255, 0, 255 };
     renderText("SCORE", textRect, goldColor);
     
     // Draw score value
     std::string scoreStr = std::to_string(score);
-    textRect = { scorePanel.x + 32, scorePanel.y + 60, 0, 0 };
+    textRect = { scorePanel.x + 50, scorePanel.y + 45, 0, 0 };
     
     SDL_Color scoreColor;
     if (pulseIntensity > 0) {
@@ -312,19 +312,19 @@ void Renderer::drawScoreSection(const SDL_Rect& scorePanel, int score, float pul
 void Renderer::drawDivider(const SDL_Rect& scorePanel) {
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 100);
     SDL_RenderDrawLine(renderer, 
-                      scorePanel.x + 15, scorePanel.y + 100, 
-                      scorePanel.x + scorePanel.w - 15, scorePanel.y + 100);
+                      scorePanel.x + 15, scorePanel.y + 95, 
+                      scorePanel.x + scorePanel.w - 15, scorePanel.y + 95);
 }
 
 void Renderer::drawLevelSection(const SDL_Rect& scorePanel, int level) {
     // Draw "LEVEL" heading
-    SDL_Rect textRect = { scorePanel.x + 20, scorePanel.y + 120, 0, 0 };
+    SDL_Rect textRect = { scorePanel.x + 20, scorePanel.y + 110, 0, 0 };
     SDL_Color goldColor = { 255, 255, 0, 255 };
     renderText("LEVEL", textRect, goldColor);
     
     // Draw level value
     std::string levelStr = std::to_string(level);
-    textRect = { scorePanel.x + 32, scorePanel.y + 160, 0, 0 };
+    textRect = { scorePanel.x + 50, scorePanel.y + 140, 0, 0 };
     SDL_Color levelColor = { 255, 255, 255, 255 };
     SDL_Rect levelRect = textRect;
     levelRect.w = 0;
