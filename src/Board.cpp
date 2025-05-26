@@ -121,6 +121,10 @@ void Board::setLevel(int level) {
         currentLevel = level;
 }
 
+void Board::setScore(int newScore) {
+    score = newScore;
+}
+
 int Board::getScore() const {
     return score;
 }
