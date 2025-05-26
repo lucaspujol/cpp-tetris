@@ -7,13 +7,13 @@ OBJ_DIR = obj
 
 SRCS = $(wildcard $(SRC_DIR)/*.cpp)
 OBJS = $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SRCS))
-TARGET = tetris
+NAME = tetris
 
 .PHONY: all clean run
 
-all: $(TARGET)
+all: $(NAME)
 
-$(TARGET): $(OBJS)
+$(NAME): $(OBJS)
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR)
@@ -27,14 +27,14 @@ clean:
 	mkdir -p $(OBJ_DIR)
 
 fclean:
-	rm -rf $(OBJ_DIR) $(TARGET)
+	rm -rf $(OBJ_DIR) $(NAME)
 	mkdir -p $(OBJ_DIR)
 	@echo "Cleaned up build files."
 
 re: fclean all
 	@echo "Rebuilt the project."
 
-run: $(TARGET)
-	./$(TARGET)
+run: $(NAME)
+	./$(NAME)
 
 .PHONY: all clean run fclean re
