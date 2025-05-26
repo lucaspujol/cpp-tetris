@@ -147,8 +147,8 @@ void Game::spawnNewPiece() {
         nextPieces[i] = nextPieces[i + 1];
     }
     
-    nextPieces[NEXT_PIECE_COUNT - 1] = Piece::I;
-    // nextPieces[NEXT_PIECE_COUNT - 1] = Piece(getRandomTetromino());
+    // nextPieces[NEXT_PIECE_COUNT - 1] = Piece::I;
+    nextPieces[NEXT_PIECE_COUNT - 1] = Piece(getRandomTetromino());
     
     // printNextPiece();
     if (!board.isValidPosition(currentPiece, pieceX, pieceY))
