@@ -1,8 +1,8 @@
-#include "Game.hpp"
+#include "MenuSystem.hpp"
 
 int main(void)
 {
-    Game game;
-    game.run();
+    MenuSystem menuSystem;
+    menuSystem.run();
     return 0;
 }
