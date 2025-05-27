@@ -269,17 +269,16 @@ void MenuSystem::renderPausedMenu() {
     SDL_SetRenderDrawColor(renderer, 180, 180, 200, 255);
     SDL_RenderDrawRect(renderer, &pausePanel);
 
-    SDL_Rect pauseTextRect = { windowWidth / 2 - 50, windowHeight / 2 - 60, 0, 0 };
     SDL_Color pauseColor = { 255, 255, 0, 255 };
-    rendererWrapper->renderText("PAUSED", pauseTextRect, pauseColor);
+    rendererWrapper->renderTextCentered("PAUSED", windowWidth / 2, windowHeight / 2 - 60, pauseColor, 40);
 
     // instructions
-    SDL_Rect instructionRect = { windowWidth / 2 - 80, windowHeight / 2 - 20, 0, 0 };
     SDL_Color instructionColor = { 255, 255, 255, 255 };
-    rendererWrapper->renderText("Press P to Resume", instructionRect, instructionColor);
-    
-    instructionRect.y += 30;
-    rendererWrapper->renderText("Press ESC for Menu", instructionRect, instructionColor);
+    rendererWrapper->renderTextCentered("Resume", windowWidth / 2, windowHeight / 2 - 10, instructionColor, 30);
+    rendererWrapper->renderTextCentered("(Escape)", windowWidth / 2, windowHeight / 2 + 15, instructionColor, 12);
+    rendererWrapper->renderTextCentered("Main Menu", windowWidth / 2, windowHeight / 2 + 40, instructionColor, 30);
+    rendererWrapper->renderTextCentered("(Backspace)", windowWidth / 2, windowHeight / 2 + 65, instructionColor, 12);
+
 
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
 }
