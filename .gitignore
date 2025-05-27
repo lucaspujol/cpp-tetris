@@ -1,5 +1,6 @@
 .vscode/
 obj/
 tetris
+tetris_debug
 *.txt
 *.log
