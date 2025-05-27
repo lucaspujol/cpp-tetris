@@ -456,20 +456,117 @@ void Renderer::drawLevelIndicatorDots(const SDL_Rect& scorePanel, int level) {
         SDL_RenderDrawRect(renderer, &dot);
     }
 }
-
-void Renderer::drawBoard(const Board &board, const Piece &piece, int posX, int posY, const std::vector<Piece> &nextPieces, const Piece* heldPiece) {
-    int windowWidth, windowHeight;
-    SDL_GetRendererOutputSize(renderer, &windowWidth, &windowHeight);
-    
+void Renderer::drawGradientBackground(int windowWidth, int windowHeight, bool isPurpleTheme) {
     for (int y = 0; y < windowHeight; y++) {
         float ratio = static_cast<float>(y) / windowHeight;
-        int r = static_cast<int>(30 + (110 * ratio) - (60 * ratio * ratio));
-        int g = static_cast<int>(30 - (30 * ratio * ratio));
-        int b = static_cast<int>(180 + (20 * ratio) - (80 * ratio * ratio));
-        
+        int r, g, b;
+        if (isPurpleTheme) {                    // gradient en violet
+            r = 40 + (y * 100 / windowHeight);
+            g = 0 + (y * 30 / windowHeight);
+            b = 100 + (y * 100 / windowHeight);
+        } else {
+            // Blue/teal gradient
+            r = static_cast<int>(30 + 40 * ratio);
+            g = static_cast<int>(80 + 60 * ratio);
+            b = static_cast<int>(120 + 80 * ratio);
+        }
         SDL_SetRenderDrawColor(renderer, r, g, b, 255);
         SDL_RenderDrawLine(renderer, 0, y, windowWidth, y);
     }
+}
+
+void Renderer::drawMainMenu(int windowWidth,
+                            int windowHeight,
+                            const SDL_Rect &startButtonRect,
+                            const SDL_Rect &quitButtonRect,
+                            bool isStartButtonHovered,
+                            bool isQuitButtonHovered
+) {
+    drawGradientBackground(windowWidth, windowHeight, false);
+    SDL_Color titleColor = { 255, 255, 0, 255 };
+    renderTextCentered("TETRIS", windowWidth / 2, windowHeight / 6, titleColor, 220);
+
+    SDL_SetRenderDrawColor(renderer, 100, 100, 140, 255);
+    SDL_RenderDrawRect(renderer, &startButtonRect);
+    SDL_RenderDrawRect(renderer, &quitButtonRect);
+
+    SDL_Color startColor = isStartButtonHovered ?
+        SDL_Color{255, 255, 0, 255} :
+        SDL_Color{255, 255, 255, 255};
+
+    SDL_Color quitColor = isQuitButtonHovered ?
+        SDL_Color{255, 255, 0, 255} :
+        SDL_Color{255, 255, 255, 255};
+
+    renderTextCentered("Start Game", windowWidth / 2, windowHeight / 2 - 50, startColor, 40);
+    renderTextCentered("Quit", windowWidth / 2, windowHeight / 2 + 50, quitColor, 40);
+    if (isStartButtonHovered) {
+        SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
+        SDL_RenderDrawRect(renderer, &startButtonRect);
+    }
+    if (isQuitButtonHovered) {
+        SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
+        SDL_RenderDrawRect(renderer, &quitButtonRect);
+    }
+}
+
+void Renderer::drawPauseMenu(int windowWidth, int windowHeight) {
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 180);
+    SDL_Rect overlay = { 0, 0, windowWidth, windowHeight };
+    SDL_RenderFillRect(renderer, &overlay);
+    
+    SDL_Rect pausePanel = { windowWidth / 2 - 150, windowHeight / 2 - 100, 300, 200 };
+    SDL_SetRenderDrawColor(renderer, 40, 40, 80, 255);
+    SDL_RenderFillRect(renderer, &pausePanel);
+    
+    SDL_SetRenderDrawColor(renderer, 180, 180, 200, 255);
+    SDL_RenderDrawRect(renderer, &pausePanel);
+    
+    SDL_Color pauseColor = { 255, 255, 0, 255 };
+    renderTextCentered("PAUSED", windowWidth / 2, windowHeight / 2 - 60, pauseColor, 40);
+    
+    SDL_Color instructionColor = { 255, 255, 255, 255 };
+    renderTextCentered("Resume", windowWidth / 2, windowHeight / 2 - 10, instructionColor, 30);
+    renderTextCentered("(Escape)", windowWidth / 2, windowHeight / 2 + 15, instructionColor, 12);
+    renderTextCentered("Main Menu", windowWidth / 2, windowHeight / 2 + 40, instructionColor, 30);
+    renderTextCentered("(Backspace)", windowWidth / 2, windowHeight / 2 + 65, instructionColor, 12);
+    
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+}
+
+void Renderer::drawGameOverMenu(int windowWidth, int windowHeight) {
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 180);
+    SDL_Rect overlay = { 0, 0, windowWidth, windowHeight };
+    SDL_RenderFillRect(renderer, &overlay);
+    
+    SDL_Rect gameOverPanel = { windowWidth / 2 - 150, windowHeight / 2 - 100, 300, 200 };
+    SDL_SetRenderDrawColor(renderer, 80, 40, 40, 255);
+    SDL_RenderFillRect(renderer, &gameOverPanel);
+    
+    SDL_SetRenderDrawColor(renderer, 200, 180, 180, 255);
+    SDL_RenderDrawRect(renderer, &gameOverPanel);
+    
+    renderTextCentered("GAME OVER", windowWidth / 2, windowHeight / 2 - 60, 
+                      SDL_Color{255, 100, 100, 255}, 40);
+    
+    SDL_Color instructionColor = { 255, 255, 255, 255 };
+    renderTextCentered("Press R to Restart", windowWidth / 2, windowHeight / 2 - 10, instructionColor, 30);
+    renderTextCentered("Press ESC for Menu", windowWidth / 2, windowHeight / 2 + 30, instructionColor, 30);
+    
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+}
+
+void Renderer::drawBoard(const Board &board,
+                         const Piece &piece,
+                         int posX, int posY,
+                         const std::vector<Piece> &nextPieces,
+                         const Piece* heldPiece
+) {
+    int windowWidth, windowHeight;
+    SDL_GetRendererOutputSize(renderer, &windowWidth, &windowHeight);
+    drawGradientBackground(windowWidth, windowHeight, true);
 
     int boardWidthPixels = Board::WIDTH * blockSize;
     int boardHeightPixels = Board::HEIGHT * blockSize;
