@@ -484,7 +484,7 @@ void Renderer::drawMainMenu(int windowWidth,
 ) {
     drawGradientBackground(windowWidth, windowHeight, false);
     SDL_Color titleColor = { 255, 255, 0, 255 };
-    renderTextCentered("TETRIS", windowWidth / 2, windowHeight / 6, titleColor, 220);
+    renderTextCentered("TETRIS", windowWidth / 2, windowHeight / 4, titleColor, 220);
 
     SDL_SetRenderDrawColor(renderer, 100, 100, 140, 255);
     SDL_RenderDrawRect(renderer, &startButtonRect);
@@ -552,9 +552,10 @@ void Renderer::drawGameOverMenu(int windowWidth, int windowHeight) {
                       SDL_Color{255, 100, 100, 255}, 40);
     
     SDL_Color instructionColor = { 255, 255, 255, 255 };
-    renderTextCentered("Press R to Restart", windowWidth / 2, windowHeight / 2 - 10, instructionColor, 30);
-    renderTextCentered("Press ESC for Menu", windowWidth / 2, windowHeight / 2 + 30, instructionColor, 30);
-    
+    renderTextCentered("Restart", windowWidth / 2, windowHeight / 2 - 10, instructionColor, 30);
+    renderTextCentered("(R)", windowWidth / 2, windowHeight / 2 + 15, instructionColor, 12);
+    renderTextCentered("Main Menu", windowWidth / 2, windowHeight / 2 + 40, instructionColor, 30);
+    renderTextCentered("(Escape)", windowWidth / 2, windowHeight / 2 + 65, instructionColor, 12);    
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
 }
 
