@@ -192,18 +192,6 @@ void MenuSystem::renderStartMenu() {
     int windowWidth, windowHeight;
     SDL_GetRendererOutputSize(renderer, &windowWidth, &windowHeight);
 
-    for (int y = 0; y < windowHeight; y++) {
-        int r = 40 + (y * 100 / windowHeight);
-        int g = 0 + (y * 30 / windowHeight);
-        int b = 100 + (y * 100 / windowHeight);
-        
-        SDL_SetRenderDrawColor(renderer, r, g, b, 255);
-        SDL_RenderDrawLine(renderer, 0, y, windowWidth, y);
-    }
-
-    SDL_Color titleColor = { 255, 255, 0, 255 };
-    rendererWrapper->renderTextCentered("TETRIS", windowWidth / 2, windowHeight / 6, titleColor, 220);
-
     // Calculate button sizes for menu options
     TTF_Font* menuFont = TTF_OpenFont(FONT_PATH, 40);
     int startWidth, startHeight;
@@ -213,6 +201,7 @@ void MenuSystem::renderStartMenu() {
     TTF_SizeText(menuFont, "Quit", &quitWidth, &quitHeight);
     TTF_CloseFont(menuFont);
     
+    // Calculate button rectangles
     startButtonRect = {
         windowWidth / 2 - startWidth / 2 - 10,
         windowHeight / 2 - 50 - startHeight / 2 - 10,
@@ -226,94 +215,23 @@ void MenuSystem::renderStartMenu() {
         quitWidth + 20,
         quitHeight + 20
     };
-    SDL_SetRenderDrawColor(renderer, 100, 100, 140, 255);
-    SDL_RenderDrawRect(renderer, &startButtonRect);
-    SDL_RenderDrawRect(renderer, &quitButtonRect);
-
-    SDL_Color startColor = isStartButtonHovered ? 
-        SDL_Color{255, 255, 0, 255} : // jaune
-        SDL_Color{255, 255, 255, 255}; // blanc chill normal t'as capté
     
-    SDL_Color quitColor = isQuitButtonHovered ? 
-        SDL_Color{255, 255, 0, 255} :
-        SDL_Color{255, 255, 255, 255};
-    
-    rendererWrapper->renderTextCentered("Start Game", windowWidth / 2, windowHeight / 2 - 50, startColor, 40);
-    rendererWrapper->renderTextCentered("Quit", windowWidth / 2, windowHeight / 2 + 50, quitColor, 40);
-    
-    if (isStartButtonHovered) {
-        SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
-        SDL_RenderDrawRect(renderer, &startButtonRect);
-    } 
-    if (isQuitButtonHovered) {
-        SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
-        SDL_RenderDrawRect(renderer, &quitButtonRect);
-    }
+    // Use renderer to draw the menu
+    rendererWrapper->drawMainMenu(windowWidth, windowHeight, 
+                                startButtonRect, quitButtonRect, 
+                                isStartButtonHovered, isQuitButtonHovered);
 }
 
 void MenuSystem::renderPausedMenu() {
     int windowWidth, windowHeight;
     SDL_GetRendererOutputSize(renderer, &windowWidth, &windowHeight);
-
-    // overlay semi transparent
-    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 180);
-    SDL_Rect overlay = { 0, 0, windowWidth, windowHeight };
-    SDL_RenderFillRect(renderer, &overlay);
-
-    // panel
-    SDL_Rect pausePanel = { windowWidth / 2 - 150, windowHeight / 2 - 100, 300, 200 };
-    SDL_SetRenderDrawColor(renderer, 40, 40, 80, 255);
-    SDL_RenderFillRect(renderer, &pausePanel);
-    
-    SDL_SetRenderDrawColor(renderer, 180, 180, 200, 255);
-    SDL_RenderDrawRect(renderer, &pausePanel);
-
-    SDL_Color pauseColor = { 255, 255, 0, 255 };
-    rendererWrapper->renderTextCentered("PAUSED", windowWidth / 2, windowHeight / 2 - 60, pauseColor, 40);
-
-    // instructions
-    SDL_Color instructionColor = { 255, 255, 255, 255 };
-    rendererWrapper->renderTextCentered("Resume", windowWidth / 2, windowHeight / 2 - 10, instructionColor, 30);
-    rendererWrapper->renderTextCentered("(Escape)", windowWidth / 2, windowHeight / 2 + 15, instructionColor, 12);
-    rendererWrapper->renderTextCentered("Main Menu", windowWidth / 2, windowHeight / 2 + 40, instructionColor, 30);
-    rendererWrapper->renderTextCentered("(Backspace)", windowWidth / 2, windowHeight / 2 + 65, instructionColor, 12);
-
-
-    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+    rendererWrapper->drawPauseMenu(windowWidth, windowHeight);
 }
 
 void MenuSystem::renderGameOverMenu() {
     int windowWidth, windowHeight;
     SDL_GetRendererOutputSize(renderer, &windowWidth, &windowHeight);
-
-    // overlay semi transparent
-    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 180);
-    SDL_Rect overlay = { 0, 0, windowWidth, windowHeight };
-    SDL_RenderFillRect(renderer, &overlay);
-
-    // panel
-    SDL_Rect gameOverPanel = { windowWidth / 2 - 150, windowHeight / 2 - 100, 300, 200 };
-    SDL_SetRenderDrawColor(renderer, 80, 40, 40, 255);
-    SDL_RenderFillRect(renderer, &gameOverPanel);
-    
-    SDL_SetRenderDrawColor(renderer, 200, 180, 180, 255);
-    SDL_RenderDrawRect(renderer, &gameOverPanel);
-
-    SDL_Rect gameOverTextRect = { windowWidth / 2 - 80, windowHeight / 2 - 60, 0, 0 };
-    SDL_Color gameOverColor = { 255, 100, 100, 255 };
-    rendererWrapper->renderText("GAME OVER", gameOverTextRect, gameOverColor);
-
-    // instructions
-    SDL_Rect instructionRect = { windowWidth / 2 - 80, windowHeight / 2 - 20, 0, 0 };
-    SDL_Color instructionColor = { 255, 255, 255, 255 };
-    rendererWrapper->renderText("Press R to Restart", instructionRect, instructionColor);
-    
-    instructionRect.y += 30;
-    rendererWrapper->renderText("Press ESC for Menu", instructionRect, instructionColor);
-
-    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+    rendererWrapper->drawGameOverMenu(windowWidth, windowHeight);
 }
 
 void MenuSystem::startNewGame() {
