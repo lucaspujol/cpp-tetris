@@ -95,12 +95,11 @@ void MenuSystem::handleStartMenuInput(SDL_Event &e) {
 void MenuSystem::handleGameInput(SDL_Event &e) {
     if (e.type == SDL_KEYDOWN) {
         switch (e.key.keysym.sym) {
-            case SDLK_p:
+            case SDLK_ESCAPE:
                 pauseGame();
                 return;
-            case SDLK_ESCAPE:
-                resetToMenu();
-                return;
+            default:
+                break;
         }
     }
     // les autres inputs sont dans la class Game
@@ -115,10 +114,10 @@ void MenuSystem::handleGameInput(SDL_Event &e) {
 void MenuSystem::handlePausedInput(SDL_Event &e) {
     if (e.type == SDL_KEYDOWN) {
         switch (e.key.keysym.sym) {
-            case SDLK_p:
+            case SDLK_ESCAPE:
                 resumeGame();
                 break;
-            case SDLK_ESCAPE:
+            case SDLK_BACKSPACE:
                 resetToMenu();
                 break;
         }
