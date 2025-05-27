@@ -8,7 +8,7 @@ SRC_DIR = src
 OBJ_DIR = obj
 OBJ_DIR_DEBUG = obj/debug
 
-SRCS = $(wildcard $(SRC_DIR)/*.cpp)
+SRCS = $(shell find $(SRC_DIR) -name '*.cpp')
 OBJS = $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SRCS))
 OBJS_DEBUG = $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR_DEBUG)/%.o, $(SRCS))
 NAME = tetris
