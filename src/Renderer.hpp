@@ -16,6 +16,8 @@ class Renderer {
         Renderer(SDL_Renderer *r);
         ~Renderer();
         void drawBoard(const Board &board, const Piece &piece, int x, int y, const std::vector<Piece> &nextPieces, const Piece* heldPiece = nullptr);
+        void renderText(const char* text, SDL_Rect destRect, SDL_Color color = {255, 255, 255, 255}, int fontSize = 0);
+        void renderTextCentered(const char* text, int x, int y, SDL_Color color, int fontSize = 0);
 
     private:
         SDL_Renderer *renderer;
@@ -24,8 +26,6 @@ class Renderer {
 
         void drawPiece(const Piece &piece, int offsetX, int offsetY, int size, bool isGhost = false);
         void setPieceColor(char pieceType, bool isGhost = false);
-        void renderText(const char* text, SDL_Rect destRect, SDL_Color color = {255, 255, 255, 255});
-        void renderTextWithSize(const char* text, SDL_Rect destRect, SDL_Color color, int fontSize);
         void drawBoardGrid(const Board &board, int offsetX, int offsetY);
         void drawGhostPiece(const Board &board, const Piece &piece, int posX, int posY, int offsetX = 0, int offsetY = 0);
         void drawNextPiecesPanel(const std::vector<Piece> &nextPieces, int panelX, int panelY, int nextPieceSize);

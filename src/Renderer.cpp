@@ -66,30 +66,83 @@ void Renderer::drawPiece(const Piece &piece, int offsetX, int offsetY, int size,
     }
 }
 
-void Renderer::renderText(const char* text, SDL_Rect destRect, SDL_Color color) {
-    if (!font)
-        return;
-    
-    SDL_Surface* textSurface = TTF_RenderText_Solid(font, text, color);
-    if (!textSurface) {
-        printf("Unable to render text surface! SDL_ttf Error: %s\n", TTF_GetError());
-        return;
-    }
-    
-    SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-    if (!textTexture) {
-        printf("Unable to create texture from rendered text! SDL Error: %s\n", SDL_GetError());
+void Renderer::renderText(const char* text, SDL_Rect destRect, SDL_Color color, int fontSize) {
+    if (fontSize == 0) {
+        if (!font)
+            return;
+            
+        SDL_Surface* textSurface = TTF_RenderText_Solid(font, text, color);
+        if (!textSurface) {
+            printf("Unable to render text surface! SDL_ttf Error: %s\n", TTF_GetError());
+            return;
+        }
+        
+        SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+        if (!textTexture) {
+            printf("Unable to create texture from rendered text! SDL Error: %s\n", SDL_GetError());
+            SDL_FreeSurface(textSurface);
+            return;
+        }
+        if (destRect.w == 0 || destRect.h == 0) {
+            destRect.w = textSurface->w;
+            destRect.h = textSurface->h;
+        }
+        SDL_RenderCopy(renderer, textTexture, NULL, &destRect);
+        
         SDL_FreeSurface(textSurface);
+        SDL_DestroyTexture(textTexture);
+    } else {
+        TTF_Font* tempFont = TTF_OpenFont(FONT_PATH, fontSize);
+        if (!tempFont) {
+            printf("Failed to load font with size %d! SDL_ttf Error: %s\n", fontSize, TTF_GetError());
+            return;
+        }
+        
+        SDL_Surface* textSurface = TTF_RenderText_Solid(tempFont, text, color);
+        if (!textSurface) {
+            printf("Unable to render text surface! SDL_ttf Error: %s\n", TTF_GetError());
+            TTF_CloseFont(tempFont);
+            return;
+        }
+        
+        SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+        if (!textTexture) {
+            printf("Unable to create texture from rendered text! SDL Error: %s\n", SDL_GetError());
+            SDL_FreeSurface(textSurface);
+            TTF_CloseFont(tempFont);
+            return;
+        }
+        if (destRect.w == 0 || destRect.h == 0) {
+            destRect.w = textSurface->w;
+            destRect.h = textSurface->h;
+        }
+        SDL_RenderCopy(renderer, textTexture, NULL, &destRect);
+        
+        SDL_FreeSurface(textSurface);
+        SDL_DestroyTexture(textTexture);
+        TTF_CloseFont(tempFont);
+    }
+}
+
+void Renderer::renderTextCentered(char const *text, int x, int y, SDL_Color color, int fontSize) {
+    TTF_Font *textFont = (fontSize == 0) ? font : TTF_OpenFont(FONT_PATH, fontSize);
+    if (!textFont)
         return;
+    int textWidth, textHeight;
+    TTF_SizeText(textFont, text, &textWidth, &textHeight);
+
+    SDL_Rect destRect = {
+        x - textWidth / 2,
+        y - textHeight / 2,
+        0,
+        0
+    };
+    if (fontSize == 0) {
+        renderText(text, destRect, color);
+    } else {
+        renderText(text, destRect, color, fontSize);
+        TTF_CloseFont(textFont);
     }
-    if (destRect.w == 0 || destRect.h == 0) {
-        destRect.w = textSurface->w;
-        destRect.h = textSurface->h;
-    }
-    SDL_RenderCopy(renderer, textTexture, NULL, &destRect);
-    
-    SDL_FreeSurface(textSurface);
-    SDL_DestroyTexture(textTexture);
 }
 
 void Renderer::drawBoardGrid(const Board &board, int offsetX, int offsetY) {
