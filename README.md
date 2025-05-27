@@ -91,10 +91,10 @@ The game speed increases as you clear lines and advance through levels:
 
 - `src/` - Source code
   - `main.cpp` - Entry point
-  - `Game.cpp` - Game logic
-  - `Board.cpp` - Board management
-  - `Piece.cpp` - Tetromino definitions and rotations
-  - `Renderer.cpp` - SDL2 rendering
+  - `Game.cpp` & `Game.hpp` - Game logic
+  - `Board.cpp` & `Board.hpp` - Board management
+  - `Piece.cpp` & `Piece.hpp` - Tetromino definitions and rotations
+  - `Renderer.cpp` & `Renderer.hpp` - SDL2 rendering
 - `assets/` - Game assets (fonts, sounds)
 
 ## 🧠 Technical Implementation
