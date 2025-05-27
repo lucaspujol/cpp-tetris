@@ -18,7 +18,13 @@ class Renderer {
         void drawBoard(const Board &board, const Piece &piece, int x, int y, const std::vector<Piece> &nextPieces, const Piece* heldPiece = nullptr);
         void renderText(const char* text, SDL_Rect destRect, SDL_Color color = {255, 255, 255, 255}, int fontSize = 0);
         void renderTextCentered(const char* text, int x, int y, SDL_Color color, int fontSize = 0);
-
+        void drawMainMenu(int windowWidth, int windowHeight,
+            const SDL_Rect &startButtonRect, const SDL_Rect &quitButtonRect,
+            bool isStartButtonHovered, bool isQuitButtonHovered);
+        void drawPauseMenu(int windowWidth, int windowHeight);
+        void drawGameOverMenu(int windowWidth, int windowHeight);
+        void drawGradientBackground(int windowWidth, int windowHeight, bool isPurpleTheme = true);
+    
     private:
         SDL_Renderer *renderer;
         TTF_Font *font;
