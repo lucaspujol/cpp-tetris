@@ -458,7 +458,7 @@ void Renderer::drawLevelIndicatorDots(const SDL_Rect& scorePanel, int level) {
 }
 
 void Renderer::drawBoard(const Board &board, const Piece &piece, int posX, int posY, const std::vector<Piece> &nextPieces, const Piece* heldPiece) {
-    SDL_SetRenderDrawColor(renderer, 75, 75, 75, 255);
+    SDL_SetRenderDrawColor(renderer, 140, 30, 200, 255);
     SDL_RenderClear(renderer);
 
     int boardWidthPixels = Board::WIDTH * blockSize;
