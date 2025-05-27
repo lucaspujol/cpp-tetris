@@ -1,7 +1,7 @@
 CXX = g++
 CXXFLAGS = -Wall -Wextra -std=c++11
 CXXFLAGS_DEBUG = $(CXXFLAGS) -g -fsanitize=address
-LDFLAGS = -lSDL2 -lSDL2_ttf
+LDFLAGS = -lSDL2 -lSDL2_ttf	-lSDL2_mixer
 LDFLAGS_DEBUG = $(LDFLAGS) -fsanitize=address
 
 SRC_DIR = src

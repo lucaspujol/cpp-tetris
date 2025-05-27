@@ -20,7 +20,7 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Install dependencies
-      run: sudo apt-get update && sudo apt-get install -y libsdl2-dev g++ libsdl2-ttf-dev
+      run: sudo apt-get update && sudo apt-get install -y libsdl2-dev g++ libsdl2-ttf-dev libsdl2-mixer-dev
 
     - name: Build the project
       run: |
