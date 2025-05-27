@@ -9,15 +9,27 @@
 #define WAIT_TIME   500
 #define NEXT_PIECE_COUNT 4
 
+class Renderer;
+
 class Game {
     public:
         Game();
+        Game(Renderer* externalRenderer);
         ~Game();
-        void run();
+        
+        // Menu system interface
+        void update();
+        void render();
+        void handleInputEvent(SDL_Event &e);
+        bool isGameOver() const;
+        
+        // void run();
 
     private:
+        Renderer *rendererWrapper;
         SDL_Window *window;
         SDL_Renderer *renderer;
+        bool ownsSdlResources;
 
         Board board;
         Piece currentPiece;
@@ -28,12 +40,9 @@ class Game {
         int pieceX, pieceY;
 
         bool quit;
-        int score = 0;
-        int level = 1;
+        bool gameOver;
 
         void handleInput();
-        void update();
-        void render();
         void spawnNewPiece();
         void holdPiece();
         bool tryWallKicks();

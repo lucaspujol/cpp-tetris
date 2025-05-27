@@ -7,8 +7,6 @@
 #include <iostream>
 #include "Board.hpp"
 
-Renderer *rendererWrapper = nullptr;
-
 Piece::Tetromino Game::getRandomTetromino() {
     return static_cast<Piece::Tetromino>(rand() % TETROMINO_COUNT);
 }
@@ -27,14 +25,31 @@ void Game::printNextPiece() {
     }
     std::cout << std::endl;
 }
-
-Game::Game() : currentPiece(Piece::I), nextPieces() {
+Game::Game() : rendererWrapper(nullptr), window(nullptr), renderer(nullptr), ownsSdlResources(true), 
+             currentPiece(Piece::I), nextPieces() {
     SDL_Init(SDL_INIT_VIDEO);
     window = SDL_CreateWindow("Tetris", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIN_WIDTH, WIN_HEIGHT, 0);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     rendererWrapper = new Renderer(renderer);
     std::srand(std::time(nullptr));
     quit = false;
+    gameOver = false;
+    heldPiece = nullptr;
+    hasHeldPiece = false;
+    canHold = true;
+    initNextPieces();
+    spawnNewPiece();
+}
+
+// Constructor for menu system
+Game::Game(Renderer* externalRenderer) : rendererWrapper(externalRenderer), window(nullptr), renderer(nullptr),
+             ownsSdlResources(false), currentPiece(Piece::I), nextPieces() {
+    rendererWrapper = externalRenderer;
+    window = nullptr;
+    renderer = nullptr;
+    std::srand(std::time(nullptr));
+    quit = false;
+    gameOver = false;
     heldPiece = nullptr;
     hasHeldPiece = false;
     canHold = true;
@@ -43,10 +58,12 @@ Game::Game() : currentPiece(Piece::I), nextPieces() {
 }
 
 Game::~Game() {
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    SDL_Quit();
-    delete rendererWrapper;
+    if (ownsSdlResources) {
+        delete rendererWrapper;
+        SDL_DestroyRenderer(renderer);
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+    }
     if (heldPiece != nullptr) {
         delete heldPiece;  // Clean up held piece memory
     }
@@ -70,64 +87,6 @@ int Game::getDropDelay() const {
     else if (level >= 16 && level <= 18) return 3 * 16;
     else if (level >= 19 && level <= 28) return 2 * 16;
     else return 16; // 1 frame (level 29+)
-}
-
-void Game::handleInput() {
-    SDL_Event e;
-    while (SDL_PollEvent(&e)) {
-        if (e.type == SDL_QUIT)
-            quit = true;
-        if (e.type == SDL_KEYDOWN) {
-            switch (e.key.keysym.sym) {
-                case SDLK_LEFT:
-                    if (board.isValidPosition(currentPiece, pieceX - 1, pieceY))
-                        pieceX--;
-                    break;
-                case SDLK_RIGHT:
-                    if (board.isValidPosition(currentPiece, pieceX + 1, pieceY))
-                        pieceX++;
-                    break;
-                case SDLK_DOWN:
-                    if (board.isValidPosition(currentPiece, pieceX, pieceY + 1))
-                        pieceY++;
-                    board.setScore(board.getScore() + 1);
-                    break;
-                case SDLK_UP:
-                    {
-                        Piece tempPiece = currentPiece;
-                        
-                        currentPiece.rotate();
-                        if (!board.isValidPosition(currentPiece, pieceX, pieceY)) {
-                            if (!tryWallKicks()) {
-                                currentPiece = tempPiece;
-                            }
-                        }
-                    }
-                    break;
-                case SDLK_SPACE:
-                    {
-                        int dropY = board.findDropPosition(currentPiece, pieceX, pieceY);
-                        if (board.isValidPosition(currentPiece, pieceX, dropY)) {
-                            pieceY = dropY;
-                            board.placePiece(currentPiece, pieceX, pieceY);
-                            spawnNewPiece();
-                        }
-                        
-                    }
-                    break;
-                case SDLK_RSHIFT:
-                    if (canHold) {
-                        holdPiece();
-                    }
-                    break;
-                case SDLK_ESCAPE:
-                    quit = true;
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
 }
 
 void Game::update() {
@@ -162,41 +121,93 @@ void Game::spawnNewPiece() {
     // nextPieces[NEXT_PIECE_COUNT - 1] = Piece::I;
     nextPieces[NEXT_PIECE_COUNT - 1] = Piece(getRandomTetromino());
     
-    canHold = true;  // Reset hold availability for new piece
+    canHold = true;
     
     // printNextPiece();
-    if (!board.isValidPosition(currentPiece, pieceX, pieceY))
+    if (!board.isValidPosition(currentPiece, pieceX, pieceY)) {
         quit = true;
+        gameOver = true;
+    }
 }
 
 void Game::holdPiece() {
     if (!canHold) {
-        return;  // Can't hold twice in one drop
+        return;
     }
     
     if (heldPiece == nullptr) {
-        // First time holding - store current piece and spawn next
         heldPiece = new Piece(currentPiece);
         hasHeldPiece = true;
         spawnNewPiece();
     } else {
-        // Swap current piece with held piece
         Piece tempPiece = currentPiece;
         currentPiece = *heldPiece;
-        delete heldPiece;  // Clean up old held piece
+        delete heldPiece;
         heldPiece = new Piece(tempPiece);
         
-        // Reset piece position for swapped piece
         pieceX = (Board::WIDTH / 2) - 2;
         pieceY = 0;
         
-        // Check if swapped piece fits at spawn position
         if (!board.isValidPosition(currentPiece, pieceX, pieceY)) {
-            quit = true;  // Game over if held piece doesn't fit
+            quit = true;
+            gameOver = true;
         }
     }
     
-    canHold = false;  // Prevent holding again until next piece
+    canHold = false;
+}
+
+void Game::handleInputEvent(SDL_Event &e) {
+    if (e.type == SDL_KEYDOWN) {
+        switch (e.key.keysym.sym) {
+            case SDLK_LEFT:
+                if (board.isValidPosition(currentPiece, pieceX - 1, pieceY))
+                    pieceX--;
+                break;
+            case SDLK_RIGHT:
+                if (board.isValidPosition(currentPiece, pieceX + 1, pieceY))
+                    pieceX++;
+                break;
+            case SDLK_DOWN:
+                if (board.isValidPosition(currentPiece, pieceX, pieceY + 1))
+                    pieceY++;
+                board.setScore(board.getScore() + 1);
+                break;
+            case SDLK_UP:
+                {
+                    Piece tempPiece = currentPiece;
+                    
+                    currentPiece.rotate();
+                    if (!board.isValidPosition(currentPiece, pieceX, pieceY)) {
+                        if (!tryWallKicks()) {
+                            currentPiece = tempPiece;
+                        }
+                    }
+                }
+                break;
+            case SDLK_SPACE:
+                {
+                    int dropY = board.findDropPosition(currentPiece, pieceX, pieceY);
+                    if (board.isValidPosition(currentPiece, pieceX, dropY)) {
+                        pieceY = dropY;
+                        board.placePiece(currentPiece, pieceX, pieceY);
+                        spawnNewPiece();
+                    }
+                }
+                break;
+            case SDLK_RSHIFT:
+                if (canHold) {
+                    holdPiece();
+                }
+                break;
+            default:
+                break;
+        }
+    }
+}
+
+bool Game::isGameOver() const {
+    return gameOver;
 }
 
 bool Game::tryWallKicks() {
@@ -223,13 +234,4 @@ bool Game::tryWallKicks() {
     }
     // pas de position valide
     return false;
-}
-
-void Game::run() {
-    while (!quit)  {
-        handleInput();
-        update();
-        render();
-        SDL_Delay(16);
-    }
 }
