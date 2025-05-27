@@ -24,13 +24,23 @@ MenuSystem::~MenuSystem() {
 void MenuSystem::run() {
     while (!quit) {
         handleInput();
+        if (quit)
+            break;
         update();
         render();
-        SDL_Delay(16); // plus ou moins 60 FPS
+        SDL_Delay(16); // ~60 FPS
     }
 }
 
 void MenuSystem::handleInput() {
+    int mouseX, mouseY;
+    SDL_GetMouseState(&mouseX, &mouseY);
+    if (currentState == START_MENU) {
+        isStartButtonHovered = (mouseX >= startButtonRect.x && mouseX <= startButtonRect.x + startButtonRect.w &&
+            mouseY >= startButtonRect.y && mouseY <= startButtonRect.y + startButtonRect.h);
+        isQuitButtonHovered = (mouseX >= quitButtonRect.x && mouseX <= quitButtonRect.x + quitButtonRect.w &&
+            mouseY >= quitButtonRect.y && mouseY <= quitButtonRect.y + quitButtonRect.h);
+    }
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
         if (e.type == SDL_QUIT) {
@@ -58,12 +68,26 @@ void MenuSystem::handleInput() {
 void MenuSystem::handleStartMenuInput(SDL_Event &e) {
     if (e.type == SDL_KEYDOWN) {
         switch (e.key.keysym.sym) {
-            case SDLK_r:
-                startNewGame();
-                break;
             case SDLK_ESCAPE:
                 quit = true;
+                return;
+            default:
                 break;
+        }
+    } else if (e.type == SDL_MOUSEBUTTONDOWN) {
+        if (e.button.button == SDL_BUTTON_LEFT) {
+            int mouseX = e.button.x;
+            int mouseY = e.button.y;
+
+            if (mouseX >= startButtonRect.x && mouseX <= startButtonRect.x + startButtonRect.w &&
+                mouseY >= startButtonRect.y && mouseY <= startButtonRect.y + startButtonRect.h) {
+                startNewGame();
+            }
+            else if (mouseX >= quitButtonRect.x && mouseX <= quitButtonRect.x + quitButtonRect.w &&
+                     mouseY >= quitButtonRect.y && mouseY <= quitButtonRect.y + quitButtonRect.h) {
+                quit = true;
+                return;
+            }
         }
     }
 }
@@ -170,9 +194,9 @@ void MenuSystem::renderStartMenu() {
     SDL_GetRendererOutputSize(renderer, &windowWidth, &windowHeight);
 
     for (int y = 0; y < windowHeight; y++) {
-        int r = 20 + (y * 40 / windowHeight);
-        int g = 0;
-        int b = 60 + (y * 60 / windowHeight);
+        int r = 40 + (y * 100 / windowHeight);
+        int g = 0 + (y * 30 / windowHeight);
+        int b = 100 + (y * 100 / windowHeight);
         
         SDL_SetRenderDrawColor(renderer, r, g, b, 255);
         SDL_RenderDrawLine(renderer, 0, y, windowWidth, y);
@@ -181,10 +205,51 @@ void MenuSystem::renderStartMenu() {
     SDL_Color titleColor = { 255, 255, 0, 255 };
     rendererWrapper->renderTextCentered("TETRIS", windowWidth / 2, windowHeight / 6, titleColor, 220);
 
-    SDL_Color instructionColor = { 255, 255, 255, 255 };
-    rendererWrapper->renderTextCentered("Start Game", windowWidth / 2, windowHeight / 2 - 50, instructionColor, 40);
+    // Calculate button sizes for menu options
+    TTF_Font* menuFont = TTF_OpenFont(FONT_PATH, 40);
+    int startWidth, startHeight;
+    TTF_SizeText(menuFont, "Start Game", &startWidth, &startHeight);
     
-    rendererWrapper->renderTextCentered("Quit", windowWidth / 2, windowHeight / 2 + 50, instructionColor, 40);
+    int quitWidth, quitHeight;
+    TTF_SizeText(menuFont, "Quit", &quitWidth, &quitHeight);
+    TTF_CloseFont(menuFont);
+    
+    startButtonRect = {
+        windowWidth / 2 - startWidth / 2 - 10,
+        windowHeight / 2 - 50 - startHeight / 2 - 10,
+        startWidth + 20,
+        startHeight + 20
+    };
+    
+    quitButtonRect = {
+        windowWidth / 2 - quitWidth / 2 - 10,
+        windowHeight / 2 + 50 - quitHeight / 2 - 10,
+        quitWidth + 20,
+        quitHeight + 20
+    };
+    SDL_SetRenderDrawColor(renderer, 100, 100, 140, 255);
+    SDL_RenderDrawRect(renderer, &startButtonRect);
+    SDL_RenderDrawRect(renderer, &quitButtonRect);
+
+    SDL_Color startColor = isStartButtonHovered ? 
+        SDL_Color{255, 255, 0, 255} : // jaune
+        SDL_Color{255, 255, 255, 255}; // blanc chill normal t'as capté
+    
+    SDL_Color quitColor = isQuitButtonHovered ? 
+        SDL_Color{255, 255, 0, 255} :
+        SDL_Color{255, 255, 255, 255};
+    
+    rendererWrapper->renderTextCentered("Start Game", windowWidth / 2, windowHeight / 2 - 50, startColor, 40);
+    rendererWrapper->renderTextCentered("Quit", windowWidth / 2, windowHeight / 2 + 50, quitColor, 40);
+    
+    if (isStartButtonHovered) {
+        SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
+        SDL_RenderDrawRect(renderer, &startButtonRect);
+    } 
+    if (isQuitButtonHovered) {
+        SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
+        SDL_RenderDrawRect(renderer, &quitButtonRect);
+    }
 }
 
 void MenuSystem::renderPausedMenu() {

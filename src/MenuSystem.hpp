@@ -27,6 +27,12 @@ private:
     State currentState;
     bool quit;
 
+    SDL_Rect startButtonRect;
+    SDL_Rect quitButtonRect;
+    bool isStartButtonHovered = false;
+    bool isQuitButtonHovered = false;
+
+
     void handleInput();
     void update();
     void render();
