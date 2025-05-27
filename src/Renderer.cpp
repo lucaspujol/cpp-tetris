@@ -458,14 +458,21 @@ void Renderer::drawLevelIndicatorDots(const SDL_Rect& scorePanel, int level) {
 }
 
 void Renderer::drawBoard(const Board &board, const Piece &piece, int posX, int posY, const std::vector<Piece> &nextPieces, const Piece* heldPiece) {
-    SDL_SetRenderDrawColor(renderer, 140, 30, 200, 255);
-    SDL_RenderClear(renderer);
+    int windowWidth, windowHeight;
+    SDL_GetRendererOutputSize(renderer, &windowWidth, &windowHeight);
+    
+    for (int y = 0; y < windowHeight; y++) {
+        float ratio = static_cast<float>(y) / windowHeight;
+        int r = static_cast<int>(30 + (110 * ratio) - (60 * ratio * ratio));
+        int g = static_cast<int>(30 - (30 * ratio * ratio));
+        int b = static_cast<int>(180 + (20 * ratio) - (80 * ratio * ratio));
+        
+        SDL_SetRenderDrawColor(renderer, r, g, b, 255);
+        SDL_RenderDrawLine(renderer, 0, y, windowWidth, y);
+    }
 
     int boardWidthPixels = Board::WIDTH * blockSize;
     int boardHeightPixels = Board::HEIGHT * blockSize;
-
-    int windowWidth, windowHeight;
-    SDL_GetRendererOutputSize(renderer, &windowWidth, &windowHeight);
 
     int offsetX = (windowWidth - boardWidthPixels) / 2;
     int offsetY = (windowHeight - boardHeightPixels) / 2 - blockSize;
