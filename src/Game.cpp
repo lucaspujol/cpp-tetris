@@ -31,6 +31,20 @@ Game::Game() : rendererWrapper(nullptr), window(nullptr), renderer(nullptr), own
     window = SDL_CreateWindow("Tetris", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIN_WIDTH, WIN_HEIGHT, 0);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     rendererWrapper = new Renderer(renderer);
+
+    try {
+        if (!audioManager.init()) {
+            std::cerr << "Warning: failed to init audio!" << std::endl;
+        } else {
+            audioManager.playMusic();
+        }
+        board.setAudioManager(&audioManager);
+    } catch (const std::exception& e) {
+        std::cerr << "Exception during audio initialization: " << e.what() << std::endl;
+    } catch (...) {
+        std::cerr << "Unknown exception during audio initialization" << std::endl;
+    }
+
     std::srand(std::time(nullptr));
     quit = false;
     gameOver = false;
@@ -47,6 +61,20 @@ Game::Game(Renderer* externalRenderer) : rendererWrapper(externalRenderer), wind
     rendererWrapper = externalRenderer;
     window = nullptr;
     renderer = nullptr;
+    
+    try {
+        if (!audioManager.init()) {
+            std::cerr << "Warning: failed to init audio!" << std::endl;
+        } else {
+            audioManager.playMusic();
+        }
+        board.setAudioManager(&audioManager);
+    } catch (const std::exception& e) {
+        std::cerr << "Exception during audio initialization: " << e.what() << std::endl;
+    } catch (...) {
+        std::cerr << "Unknown exception during audio initialization" << std::endl;
+    }
+
     std::srand(std::time(nullptr));
     quit = false;
     gameOver = false;
@@ -65,7 +93,7 @@ Game::~Game() {
         SDL_Quit();
     }
     if (heldPiece != nullptr) {
-        delete heldPiece;  // Clean up held piece memory
+        delete heldPiece;
     }
 }
 
@@ -98,6 +126,11 @@ void Game::update() {
             pieceY++;
         } else {
             board.placePiece(currentPiece, pieceX, pieceY);
+            try {
+                audioManager.playSound(AudioManager::PLACE);
+            } catch (...) {
+                std::cerr << "Warning: Exception when playing place sound" << std::endl;
+            }
             spawnNewPiece();
         }
         lastTick = SDL_GetTicks();
@@ -127,6 +160,7 @@ void Game::spawnNewPiece() {
     if (!board.isValidPosition(currentPiece, pieceX, pieceY)) {
         quit = true;
         gameOver = true;
+        audioManager.playSound(AudioManager::GAME_OVER);
     }
 }
 
@@ -181,7 +215,11 @@ void Game::handleInputEvent(SDL_Event &e) {
                     if (!board.isValidPosition(currentPiece, pieceX, pieceY)) {
                         if (!tryWallKicks()) {
                             currentPiece = tempPiece;
+                        } else {
+                            audioManager.playSound(AudioManager::ROTATE);
                         }
+                    } else {
+                        audioManager.playSound(AudioManager::ROTATE);
                     }
                 }
                 break;
