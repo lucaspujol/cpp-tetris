@@ -24,10 +24,18 @@ class AudioManager {
         void resumeMusic();
         void stopMusic();
         void playSound(SoundEffect effect);
+        
+        // Volume controls (0-100 range, will be converted to 0-128 for SDL_mixer)
+        void setMusicVolume(int volume);
+        void setSoundVolume(int volume);
+        int getMusicVolume() const;
+        int getSoundVolume() const;
 
     private:
         Mix_Music *backgroundMusic;
         std::unordered_map<SoundEffect, Mix_Chunk *> soundEffects;
+        int musicVolume;  // (0-100)
+        int soundVolume;  // (0-100)
 
         bool loadSounds();
         bool loadMusic();
