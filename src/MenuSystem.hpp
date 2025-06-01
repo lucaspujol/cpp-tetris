@@ -4,6 +4,7 @@
 #include <SDL2/SDL.h>
 #include "Game.hpp"
 #include "Renderer.hpp"
+#include "AudioManager.hpp"
 
 class MenuSystem {
 public:
@@ -23,7 +24,8 @@ private:
     SDL_Renderer *renderer;
     Renderer *rendererWrapper;
     Game *game;
-    
+    AudioManager audioManager;
+
     State currentState;
     bool quit;
 
@@ -31,28 +33,25 @@ private:
     SDL_Rect quitButtonRect;
     bool isStartButtonHovered = false;
     bool isQuitButtonHovered = false;
-
+    bool hasRenderedStaticScreen = false;
 
     void handleInput();
     void update();
     void render();
-    
+
     void handleStartMenuInput(SDL_Event &e);
     void handleGameInput(SDL_Event &e);
     void handlePausedInput(SDL_Event &e);
     void handleGameOverInput(SDL_Event &e);
-    
+
     void renderStartMenu();
     void renderPausedMenu();
     void renderGameOverMenu();
-    
+
     void startNewGame();
     void pauseGame();
     void resumeGame();
     void resetToMenu();
-
-    // Helper function to access the static screen flag
-    static bool& getStaticScreenFlag();
 };
 
 #endif /* _MENU_SYSTEM_ */
