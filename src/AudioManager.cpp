@@ -84,7 +84,6 @@ bool AudioManager::loadSounds() {
         }
         
         std::string basePath = std::string(currentPath) + "/assets/sounds/";
-        std::cout << "Loading sounds from: " << basePath << std::endl;
         
         const struct {
             SoundEffect effect;
@@ -100,7 +99,6 @@ bool AudioManager::loadSounds() {
         
         for (const auto& soundFile : soundFiles) {
             std::string fullPath = basePath + soundFile.filename;
-            std::cout << "Loading sound: " << fullPath << std::endl;
             
             Mix_Chunk* sound = Mix_LoadWAV(fullPath.c_str());
             if (!sound) {
@@ -132,7 +130,6 @@ bool AudioManager::loadMusic() {
         
         std::string basePath = std::string(currentPath) + "/assets/sounds/";
         std::string musicPath = basePath + "background_music.mp3";
-        std::cout << "Loading music from: " << musicPath << std::endl;
         
         backgroundMusic = Mix_LoadMUS(musicPath.c_str());
         if (!backgroundMusic) {
