@@ -158,9 +158,13 @@ void Renderer::drawBoardGrid(const Board &board, int offsetX, int offsetY) {
                     SDL_RenderDrawRect(renderer, &rect);
                 }
             } else {
+                // Fill empty cell with black
                 SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
                 SDL_Rect rect = { offsetX + x * blockSize, offsetY + y * blockSize, blockSize, blockSize };
                 SDL_RenderFillRect(renderer, &rect);
+                // Draw dark grey outline
+                SDL_SetRenderDrawColor(renderer, 40, 40, 40, 255);
+                SDL_RenderDrawRect(renderer, &rect);
             }
         }
     }
@@ -169,20 +173,32 @@ void Renderer::drawBoardGrid(const Board &board, int offsetX, int offsetY) {
 void Renderer::drawGhostPiece(const Board &board, const Piece &piece, int posX, int posY, int offsetX, int offsetY) {
     int dropY = board.findDropPosition(piece, posX, posY);
     if (dropY > posY) {
-        const auto &shape = piece.getShape();
+        const auto &shape = piece.getShape();        
+        Uint8 r, g, b, a;
+        SDL_GetRenderDrawColor(renderer, &r, &g, &b, &a);
+        setPieceColor(piece.getType(), false);
+        
         for (int x = 0; x < 5; ++x) {
             for (int y = 0; y < 5; ++y) {
                 if (shape[x][y]) {
                     int boardX = posX + x;
                     int boardY = dropY + y;
                     if (boardX >= 0 && boardX < Board::WIDTH && boardY >= 0 && boardY < Board::HEIGHT) {
-                        SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
                         SDL_Rect rect = { offsetX + boardX * blockSize, offsetY + boardY * blockSize, blockSize, blockSize };
                         SDL_RenderDrawRect(renderer, &rect);
+                        SDL_Rect innerRect = { 
+                            offsetX + boardX * blockSize + 1, 
+                            offsetY + boardY * blockSize + 1, 
+                            blockSize - 2, 
+                            blockSize - 2 
+                        };
+                        SDL_RenderDrawRect(renderer, &innerRect);
                     }
                 }
             }
         }
+        
+        SDL_SetRenderDrawColor(renderer, r, g, b, a);
     }
 }
 
