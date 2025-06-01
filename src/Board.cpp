@@ -1,10 +1,17 @@
 #include "Board.hpp"
+#include "AudioManager.hpp"
+#include <iostream>
 
 Board::Board() {
     grid.resize(WIDTH, std::vector<char>(HEIGHT, 0));
     score = 0;
     currentLevel = 1;
     linesCleared = 0;
+    audioManager = nullptr;
+}
+
+void Board::setAudioManager(AudioManager *manager) {
+    audioManager = manager;
 }
 
 bool Board::isValidPosition(const Piece &piece, int posX, int posY) const {
@@ -109,6 +116,15 @@ int Board::clearFullLines() {
             grid[x][0] = 0;
         }
     }
+
+    try {
+        if (linesCleared > 0 && audioManager != nullptr) {
+            audioManager->playSound(AudioManager::LINE_CLEAR);
+        }
+    } catch (...) {
+        std::cerr << "Warning: Exception when playing line clear sound" << std::endl;
+    }
+
     return linesCleared;
 }
 
