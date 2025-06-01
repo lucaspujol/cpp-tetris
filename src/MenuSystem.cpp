@@ -9,6 +9,12 @@ MenuSystem::MenuSystem() : game(nullptr), currentState(START_MENU), quit(false) 
     window = SDL_CreateWindow("Tetris", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIN_WIDTH, WIN_HEIGHT, 0);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     rendererWrapper = new Renderer(renderer);
+
+    if (!audioManager.init()) {
+        std::cerr << "Warning: failed to init audio!" << std::endl;
+    } else {
+        audioManager.playMusic();
+    }
 }
 
 MenuSystem::~MenuSystem() {
@@ -246,12 +252,14 @@ void MenuSystem::startNewGame() {
 void MenuSystem::pauseGame() {
     if (currentState == PLAYING) {
         currentState = PAUSED;
+        audioManager.pauseMusic();
     }
 }
 
 void MenuSystem::resumeGame() {
     if (currentState == PAUSED) {
         currentState = PLAYING;
+        audioManager.resumeMusic();
         render();
     }
 }
