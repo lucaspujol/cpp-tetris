@@ -3,6 +3,7 @@
 #include <SDL2/SDL.h>
 #include "Board.hpp"
 #include "Piece.hpp"
+#include "AudioManager.hpp"
 #include <vector>
 #define WIN_HEIGHT  1080
 #define WIN_WIDTH   1920
@@ -29,6 +30,7 @@ class Game {
         Renderer *rendererWrapper;
         SDL_Window *window;
         SDL_Renderer *renderer;
+        AudioManager audioManager;
         bool ownsSdlResources;
 
         Board board;
