@@ -3,7 +3,7 @@
 #include <string>
 #include <unistd.h>
 #include <linux/limits.h>
-#include <algorithm>  // For std::max and std::min
+#include <algorithm> // std::max && std::min
 
 AudioManager::AudioManager() : backgroundMusic(nullptr), musicVolume(40), soundVolume(80) {
     soundEffects.clear();
@@ -66,10 +66,9 @@ bool AudioManager::init() {
             std::cerr << "Warning: Failed to load background music!" << std::endl;
         }
         
-        // Set initial volumes
-        setMusicVolume(musicVolume);  // Lower music volume (40%)
-        setSoundVolume(soundVolume);  // Higher sound effect volume (80%)
-        
+        setMusicVolume(musicVolume);
+        setSoundVolume(soundVolume);
+
         return soundsLoaded || musicLoaded;
     } catch (const std::exception& e) {
         std::cerr << "Exception during audio initialization: " << e.what() << std::endl;
@@ -205,22 +204,16 @@ void AudioManager::playSound(SoundEffect effect) {
 }
 
 void AudioManager::setMusicVolume(int volume) {
-    // Clamp volume to 0-100 range
     musicVolume = std::max(0, std::min(100, volume));
     
-    // Convert to SDL_mixer range (0-128)
     int sdlVolume = static_cast<int>(musicVolume * 128 / 100);
     Mix_VolumeMusic(sdlVolume);
 }
 
 void AudioManager::setSoundVolume(int volume) {
-    // Clamp volume to 0-100 range
     soundVolume = std::max(0, std::min(100, volume));
-    
-    // Convert to SDL_mixer range (0-128)
     int sdlVolume = static_cast<int>(soundVolume * 128 / 100);
     
-    // Set volume for all sound effects
     for (auto& pair : soundEffects) {
         if (pair.second) {
             Mix_VolumeChunk(pair.second, sdlVolume);
